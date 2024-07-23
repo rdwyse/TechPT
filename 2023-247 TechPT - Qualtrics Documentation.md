@@ -124,7 +124,7 @@ The Qualtrics does not provide JS jQuery Source but does offer a series of API r
 
 - Accessible URL: The URL where the JavaScript library is hosted should be publically accessible from any browser. Ensure that there are no server-side restrictions preventing the file from being accessed. Optimally the library would be hosted within the Qualtrics enviroment, secondaraly on a CMU managed server, and lastly on a public platform like GitHub. 
 
-- CORS Headers: Currently have not had a need for this functionality, but may need to considred if any difficulties with security. If the JavaScript file is being accessed from a domain different from the one it's hosted on, you'll need to ensure that the server sends the appropriate CORS (Cross-Origin Resource Sharing) headers. This is to allow the browser to fetch and execute the script across domains. The header typically looks like this: Access-Control-Allow-Origin: *. The * allows any domain to access the resource, but for security reasons, you might want to replace * with the specific domain that will be accessing the script.
+- CORS Headers: Currently have not had a need for this functionality, but may need to consider if any difficulties with security. If the JavaScript file is being accessed from a domain different from the one it's hosted on, you'll need to ensure that the server sends the appropriate CORS (Cross-Origin Resource Sharing) headers. This is to allow the browser to fetch and execute the script across domains. The header typically looks like this: Access-Control-Allow-Origin: *. The * allows any domain to access the resource, but for security reasons, you might want to replace * with the specific domain that will be accessing the script.
 
 ##### Hosting Troubleshooting
 
@@ -211,8 +211,7 @@ Defined variables are initialized through three different mechanisms:
    The values for these embedded data fields are set directly within the survey flow, either as constants or derived from other survey elements or logic.
    This approach is useful when you need to set or modify embedded data values based on respondent answers, survey logic, or calculations performed within the survey.
 
-4. Derived Variables: 
-   These variables are not explicitly defined in the survey but are calculated or derived based on other variables or survey responses. They are often used for data analysis or reporting purposes. Examples of derived variables could include total scores, percentages, or categorizations based on specific criteria.
+Derived Variables: These variables are not explicitly defined in the survey but are calculated or derived based on other variables or survey responses. They are often used for data analysis or reporting purposes. Examples of derived variables could include total scores, percentages, or categorizations based on specific criteria.
 
 The variables used in the survey play a crucial role in capturing relevant data points, enabling personalization and customization of the survey experience, and facilitating accurate data analysis. By leveraging embedded data fields and JavaScript, the survey can dynamically adapt to each respondent's specific context and track their progress throughout the study.
 
