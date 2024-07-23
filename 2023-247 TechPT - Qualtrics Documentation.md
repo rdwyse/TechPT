@@ -1,6 +1,5 @@
 # TechPT - Qualtrics Documentation 
 2024.07.23
-Kay delete this later!
 ## Table of Contents
 
 - [Introduction](#introduction)
