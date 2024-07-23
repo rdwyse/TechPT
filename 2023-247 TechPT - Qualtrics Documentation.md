@@ -89,8 +89,6 @@
 
 ## Introduction
 
-$EDIT seeing if we cna comment lower in the doc $EDIT
-
 This documentation delineates the design and variable framework employed within the Qualtrics survey for the technology-assisted caregiver training program (TechPT). The survey is crafted to support caregivers of children with behavioral challenges, utilizing a multi-tiered training approach. The primary research objective is to evaluate the impact of the training program on caregiver performance.
 
 The study design incorporates a combination of multiple baseline across behaviors and a replicated AB design, facilitating within and between subject analysis. The survey framework, including block naming conventions and logic sequences, is tailored to seamlessly integrate with the study's multi-phase approach, centrally capturing data from both caregivers and confederates across various study phases and session types.
