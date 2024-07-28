@@ -175,14 +175,14 @@ https://cmich.co1.qualtrics.com/jfe/form/SV_cvj0yTQ6ooAdskS?CaregiverID=YOUR_VAL
 For instance, for a confederate session guide (`1_CONF`) for caregiver ID `CG123`,during the baseline phase (`0_BL`), and the session type being actual child (`0_AC`), the resultant link appears as:
 
 ```
-https://cmich.co1.qualtrics.com/jfe/form/SV_cvj0yTQ6ooAdskS?CaregiverID=CG123&Respondent=1_CONF&StudyPhase=0_BL&SessionType=0_AC
+https://PRIVATE/jfe/form/SV_PRIVATE?CaregiverID=CG123&Respondent=1_CONF&StudyPhase=0_BL&SessionType=0_AC
 ```
 
 The file, Session Link Generator.xlsx, offers an automated tool for specific link generation. 
 
 The embedded Excel formula generating the link from individual columns is: 
 ```
-="https://cmich.co1.qualtrics.com/jfe/form/SV_cvj0yTQ6ooAdskS?CaregiverID=" & A2 & "&Respondent=" & B2 & "&StudyPhase=" & C2 & "&SessionType=" & D2 & "&SessionCount=" & E2
+="https://PRIVATE/jfe/form/SV_PRIVATE?CaregiverID=" & A2 & "&Respondent=" & B2 & "&StudyPhase=" & C2 & "&SessionType=" & D2 & "&SessionCount=" & E2
 ```
 
 ## Variables
@@ -1564,47 +1564,54 @@ To add more caregivers or modify existing directions, simply extend or modify th
 To dynamically select and present a direction to the caregiver based on the current study phase and specific caregiver.
 
 **Implementation**:
-JavaScript is employed within Qualtrics to facilitate this logic. The `selectDirection` function is called when the survey page is fully displayed using the `Qualtrics.SurveyEngine.addOnReady` function. 
+JavaScript is employed within Qualtrics to facilitate this logic. The `selectDirection` function is called when the survey page is fully displayed using the `Qualtrics.SurveyEngine.addOnReady` function.
 
 The `selectDirection` function performs the following steps:
 
-1. Retrieves the values of `SessionDirectionsTemplate` and `SessionDirectionPool` embedded data variables.
+1. Retrieves the values of `SessionDirectionsTemplate`, `SessionDirectionPool`, `StudyPhase`, `CaregiverID`, and `SessionType` embedded data variables.
 
-2. Checks if the `SessionDirectionsTemplate` is empty. If it is, the function retrieves the values of `StudyPhase` and `CaregiverID` embedded data variables to determine the correct list of directions to pull from (either baseline or training) based on the current study phase. The selected list of directions is then stored in the `SessionDirectionsTemplate` variable and updated in the embedded data.
+2. Checks if the `SessionDirectionsTemplate` is empty. If it is, the function determines the correct list of directions to pull from (either baseline, training, or actual child) based on the current study phase and session type:
+   - If `SessionType` is `0_AC`, the function selects the `actualChild` directions.
+   - If `SessionType` is not `0_AC`, the function selects:
+     - `baseline` directions for `0_BL` or `5_RTB` study phases.
+     - `training` directions for other study phases.
 
-3. If the `SessionDirectionsTemplate` is not empty, the function parses the `SessionDirectionsTemplate` and `SessionDirectionPool` from their JSON string representation.
+3. The selected list of directions is stored in the `SessionDirectionsTemplate` variable and updated in the embedded data.
 
-4. The `getRandomDirection` function is defined within the `selectDirection` function. It checks if the `SessionDirectionPool` is empty. If it is, the function replenishes it with the directions from the `SessionDirectionsTemplate`. It then randomly selects a direction from the `SessionDirectionPool`, removes the selected direction from the pool, and returns it.
+4. If the `SessionDirectionsTemplate` is not empty, the function parses the `SessionDirectionsTemplate` and `SessionDirectionPool` from their JSON string representation.
 
-5. The `getRandomDirection` function is executed, and the selected direction is stored in the `selectedDirection` variable.
+5. The `getSpecificDirection` function is defined within the `selectDirection` function. It retrieves a specific direction from the `SessionDirectionsTemplate` based on a given index.
 
-6. The selected direction is set as the `TrialDirection` embedded data variable for tracking purposes.
+6. The `getRandomDirection` function is defined within the `selectDirection` function. It checks if the `SessionDirectionPool` is empty. If it is, the function replenishes it with the directions from the `SessionDirectionsTemplate`. It then randomly selects a direction from the `SessionDirectionPool`, removes the selected direction from the pool, and returns it.
 
-7. The first four characters of the selected direction are removed, and the resulting direction text is set as the `CaregiverTrialDirection` embedded data variable for displaying to the caregiver.
+7. The function decides which direction to select based on the study phase and session type:
+   - If `studyPhase` is `0_BL` and `sessionType` is `0_AC`, the function uses the `SpecificBaselineDirectionIndex` embedded data field to select a specific direction.
+   - Otherwise, the function selects a random direction.
 
-8. The updated `SessionDirectionPool` is stored back into the embedded data.
+8. The selected direction is stored in the `selectedDirection` variable.
+
+9. The selected direction is set as the `TrialDirection` embedded data variable for tracking purposes.
+
+10. The first four characters of the selected direction are removed, and the resulting direction text is set as the `CaregiverTrialDirection` embedded data variable for displaying to the caregiver.
+
+11. The updated `SessionDirectionPool` is stored back into the embedded data.
 
 **Additional Information**:
 The `selectDirection` function is called using the `Qualtrics.SurveyEngine.addOnReady` function, on **Question 1** (e.g., `CARE-BL-SC-TB-Wait`) of the Loop and Merge Block.
 
 The `SessionDirectionsTemplate` serves as a master list of directions for each caregiver and study phase, while the `SessionDirectionPool` is a working copy of the directions that gets depleted as directions are randomly selected. When the `SessionDirectionPool` becomes empty, it is replenished with the directions from the `SessionDirectionsTemplate`.
 
+The `getSpecificDirection` function is responsible for retrieving a specific direction from the `SessionDirectionsTemplate` based on a given index. This is used during the baseline actual child phase to ensure specific directions are presented.
+
 The `getRandomDirection` function is responsible for randomly selecting a direction from the `SessionDirectionPool`, removing the selected direction from the pool, and returning it. This ensures that each direction is presented only once until all the directions in the pool have been exhausted.
 
 The selected direction is stored in the `TrialDirection` embedded data variable for tracking purposes and also cleaned up by removing the first four characters before being stored in the `CaregiverTrialDirection` embedded data variable for displaying to the caregiver.
 
+### Updated `selectDirection` Function
 
 ```javascript
-// *** START Caregiver Direction Selection Code ***
-
-var RandomDirectionSwitch = Qualtrics.SurveyEngine.getEmbeddedData('RandomDirectionSwitch');
-
-// Check switch to see if a direction needs to be selected
-if (RandomDirectionSwitch === '1') {
-    // Retrieve the values of the StudyPhase and CaregiverID embedded variables
-    var studyPhase = Qualtrics.SurveyEngine.getEmbeddedData('StudyPhase');
-    var caregiverID = Qualtrics.SurveyEngine.getEmbeddedData('CaregiverID');
-
+function selectDirection() {
+    
     var SessionDirectionsTemplate = Qualtrics.SurveyEngine.getEmbeddedData('SessionDirectionsTemplate');
     var SessionDirectionPool = Qualtrics.SurveyEngine.getEmbeddedData('SessionDirectionPool');
     
@@ -1612,11 +1619,20 @@ if (RandomDirectionSwitch === '1') {
 
     // Check if template is empty. Get the list of directions for the specified caregiver and phase. Place it in the template.
     if (SessionDirectionsTemplate === "0") {
-        // Determine the correct list to pull directions from for baseline or training
-        if (studyPhase === "0_BL" || studyPhase === "5_RTB") {
-            SessionDirectionsTemplate = JSON.stringify(caregiverDirectionPool[caregiverID]["baseline"]);
+        // Retrieve the values of the StudyPhase, CaregiverID, and SessionType embedded variables
+        var studyPhase = Qualtrics.SurveyEngine.getEmbeddedData('StudyPhase');
+        var caregiverID = Qualtrics.SurveyEngine.getEmbeddedData('CaregiverID');
+        var sessionType = Qualtrics.SurveyEngine.getEmbeddedData('SessionType');
+        
+        // Determine the correct list to pull directions from for baseline, training, or actual child
+        if (sessionType === "0_AC") {
+            SessionDirectionsTemplate = JSON.stringify(caregiverDirectionPool[caregiverID]["actualChild"]);
         } else {
-            SessionDirectionsTemplate = JSON.stringify(caregiverDirectionPool[caregiverID]["training"]);
+            if (studyPhase === "0_BL" || studyPhase === "5_RTB") {
+                SessionDirectionsTemplate = JSON.stringify(caregiverDirectionPool[caregiverID]["baseline"]);
+            } else {
+                SessionDirectionsTemplate = JSON.stringify(caregiverDirectionPool[caregiverID]["training"]);
+            }
         }
 
         // Store the JSON formatted SessionDirectionsTemplate in embedded data then update JavaScript SessionDirectionsTemplate with parsed value
@@ -1633,6 +1649,11 @@ if (RandomDirectionSwitch === '1') {
         SessionDirectionPool = Array.from(JSON.parse(SessionDirectionPool));
     }
 
+    function getSpecificDirection(index) {
+        // Retrieve the specific direction from the SessionDirectionsTemplate based on the index
+        return SessionDirectionsTemplate[index];
+    }
+
     function getRandomDirection() {
         // Check if SessionDirectionPool is empty
         if (SessionDirectionPool.length === 0) {
@@ -1647,8 +1668,19 @@ if (RandomDirectionSwitch === '1') {
         return selectedDirection;
     }
 
-    // Execute function
-    selectedDirection = getRandomDirection();
+    // Retrieve the values of the StudyPhase and SessionType embedded variables
+    var studyPhase = Qualtrics.SurveyEngine.getEmbeddedData('StudyPhase');
+    var sessionType = Qualtrics.SurveyEngine.getEmbeddedData('SessionType');
+
+    // Execute function based on StudyPhase and SessionType
+    if (studyPhase === "0_BL" && sessionType === "0_AC") {
+        // Use a specific direction based on the survey link initialized embedded field
+        var specificDirectionIndex = parseInt(Qualtrics.SurveyEngine.getEmbeddedData('SpecificBaselineDirectionIndex'));
+        selectedDirection = getSpecificDirection(specificDirectionIndex);
+    } else {
+        // Use random direction selection for other phases
+        selectedDirection = getRandomDirection();
+    }
 
     // Set the selected direction as an embedded variable for tracking with AggregateData
     Qualtrics.SurveyEngine.setEmbeddedData('TrialDirection', selectedDirection);
@@ -1660,7 +1692,6 @@ if (RandomDirectionSwitch === '1') {
     // Store the updated SessionDirectionPool in embedded data
     Qualtrics.SurveyEngine.setEmbeddedData('SessionDirectionPool', JSON.stringify(SessionDirectionPool));
 }
-// *** END Caregiver Direction Selection Code ***
 ```
 
 ## Confederate Response Selection 
