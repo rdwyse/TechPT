@@ -1517,11 +1517,12 @@ The `caregiverDirectionPool` is a JavaScript object that stores a structured set
 
 **Structure:**  
 - **Key**: Caregiver's unique identifier (e.g., `"CaregiverID"`).
-- **Value**: An object containing two properties: `baseline` and `training`. Each of these properties is an array of string directions.
+- **Value**: An object containing three properties: `baseline`, `training`, and `generalization`. Each of these properties is an array of string directions.
 
 **Properties:**  
 - **baseline**: An array of directions specific to the baseline phase. Each direction is prefixed with a code (e.g., `"0_BL"`) followed by the actual direction text.
 - **training**: An array of directions specific to the training phase. Each direction is prefixed with a code (e.g., `"0_TR"`) followed by the actual direction text.
+- **generalization**: An array of directions specific to the actual child generalization probes. Each direction is prefixed with a code (e.g., `"0_GP"`) followed by actual direction text.
 
 **Usage:**  
 The `caregiverDirectionPool` object provides a centralized location to store and manage the directions for each caregiver. By referencing a caregiver's unique ID, a script can easily retrieve the appropriate set of directions for the current phase of the study.
