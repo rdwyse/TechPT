@@ -1704,42 +1704,53 @@ Responses in Qualtrics are stored in the "response data table," accessible via t
 - **Metadata Fields in Data Table**:
   - Includes system-generated fields such as `startDate`, `endDate`, `progress`, `duration`, and `finished`, which are fixed and cannot be modified within Qualtrics.
 
+Here's a cleaned-up version of your documentation while retaining the original heading structure:
+
+---
+
 ### Exporting Data
 
-Qualtrics offers options for exporting response data. The first solution was to use Qualtrics Survey website to copy and paste the text. However, this was too labour intensive, but is a beneficial procedure in verifying individual responses. The second solution involves downloading the entire response table from qualtrics.
+Qualtrics offers options for exporting response data. Initially, the solution was to use the Qualtrics Survey website to manually copy and paste the text, but this was labor-intensive, albeit useful for verifying individual responses. The alternative solution is downloading the entire response table from Qualtrics.
 
-- ** Solution A: Reviewing Individual Response Entries on HTML**: This process can be used to verify output of a specific session quickly and can further be extracted with tthe 
-- ** Solution B: Tab Separated Values (.tsv)**: This format, recommended for use with Microsoft Excel, separates each response value with a tab and each response with a newline character. Qualtrics TSV exports use UTF-16 encoding to accommodate special characters.
+- **Solution A: Reviewing Individual Response Entries on HTML**: This process is used to quickly verify the output of a specific session and can be further extracted.
+- **Solution B: Tab Separated Values (.tsv)**: This format, recommended for use with Microsoft Excel, separates each response value with a tab and each response with a newline. Qualtrics TSV exports use UTF-16 encoding to handle special characters.
+- **Solution C: Copy and Paste Method for Manual Extraction:** This method is an alternative approach when automated exports within Qualtrics fail to retrieve the required data (e.g., AggregatedData). It involves using the Qualtrics web interface to manually copy and paste responses into a text file, which can then be transformed into a structured format.
 
-#### Solution A data extraction procedure
+#### Solution A Data Extraction Procedure
 
 ##### Qualtrics View Response Collection
-Use this solution to obtain a result from a specific qualtrics survey response.
 
-Step 1: Open up TechPT Session Guide project
-Step 2: Click data and analysis
-Step 3: Select the three dots next to the repsonse you want to collect
-Step 4: Click view response, wait to load
-Step 5: Scroll down to aggregate data text and copy
-Step 6: Paste into plain text editor, like notepad or notepad++
-Step 7: Paste collected data and organize/clean it. Delete any extraneous labels such as aggregate data x, respondent data x, etc. so that each of the aggregate data are in line. 
-Step 8: Assign name. Date (YYYY.MM.DD) - CaregiverID - Respondent - StudyPhase - Session Type - SessionCount - [A,B,C (for multiple entrtries during the same session)].txt Ex. 2024.07.02 - CG3255 - 1_CARE - 1_T1 - 1_SC - 1.txt
-Step 9: Follow Covert JSON Data to CSV
-Step 10: Open exported data set
+Use this solution to obtain a result from a specific Qualtrics survey response.
 
+1. Open the TechPT Session Guide project.
+2. Click **Data and Analysis**.
+3. Select the three dots next to the response you want to collect.
+4. Click **View Response** and wait for it to load.
+5. Scroll down to the aggregate data text and copy it.
+6. Paste the text into a plain text editor, such as Notepad or Notepad++.
+7. Organize and clean the data by deleting extraneous labels (e.g., "aggregate data x", "respondent data x") so that each aggregate data entry is aligned.
+8. Assign a name using the format `Date (YYYY.MM.DD) - CaregiverID - Respondent - StudyPhase - SessionType - SessionCount - [A,B,C for multiple entries during the same session].txt`. Example: `2024.07.02 - CG3255 - 1_CARE - 1_T1 - 1_SC - 1.txt`.
+9. Follow the steps to convert JSON data to CSV.
+10. Open the exported dataset.
 
 ##### Converting JSON Data to CSV
 
-Utilizing the exported data table from Qualtrics, Open the tab deliminated file in excel. Copy all cells of AggregatedData[x] for the survey row of interest. Paste into a new text file. Label the file Date (YYYY.MM.DD) - CaregiverID - Respondent - StudyPhase - Session Type - SessionCount - [A,B,C (for multiple entrtries during the same session)].txt Run the Python script json_to_csv.py. code to execute phython script: & "D:/Program Files/Python39/python.exe" "e:/OneDrive/Central Michigan University/Hixson Lab - Wyse/Qualtrics/JSON_to_CSV/json_to_csv.py"
+To utilize the exported data table from Qualtrics:
 
-A file dialog will open, prompting you to select the input JSON file. Navigate to the location where you saved the exported JSON data and select the file.
-The script will automatically clean up the JSON data by removing any delimiter patterns (]    [) and replacing them with commas (,).
-Another file dialog will open, asking you to specify the location and name for the output CSV file. Choose a location, enter a name for the file, and click "Save".
+1. Open the tab-delimited file in Excel.
+2. Copy all cells of `AggregatedData[x]` for the relevant survey row.
+3. Paste into a new text file.
+4. Label the file using the format `Date (YYYY.MM.DD) - CaregiverID - Respondent - StudyPhase - SessionType - SessionCount - [A,B,C for multiple entries during the same session].txt`.
+5. Run the Python script `json_to_csv.py`.
 
-The script will parse the cleaned JSON data, extract the field names from the first object, and write the data to the specified CSV file.
-Once the script finishes executing, you will see a success message indicating that the data has been exported to the CSV file.
 
+- A file dialog will open, prompting you to select the input JSON file.
+- The script will automatically clean up the JSON data by removing any delimiter patterns (such as `] [`) and replacing them with commas.
+- Another dialog will ask you to specify the location and name for the output CSV file. Choose a location, enter a name, and click "Save".
+- The script will parse the JSON data, extract field names from the first object, and write the data to the CSV file.
+- Upon completion, you'll see a success message indicating that the data has been exported to the CSV file.
 
+##### Python Code for JSON to CSV Conversion
 
 ```python
 import json
@@ -1769,6 +1780,150 @@ parsed_json_data = json.loads(cleaned_json_data)
 # Extract the field names from the first object
 field_names = list(parsed_json_data[0].keys())
 
+# Get the base name of the input file
+input_file_name = os.path.basename(json_file)
+
+# Open a file dialog to specify the output directory
+output_dir = filedialog.askdirectory(title="Select Output Directory")
+
+# Generate the output file path
+output_file = os.path.join(output_dir, input_file_name)
+output_file = os.path.splitext(output_file)[0] + ".csv"
+
+# Open the output file in write mode
+with open(output_file, "w", newline="") as file:
+    writer = csv.DictWriter(file, fieldnames=field_names)
+    writer.writeheader()
+    for obj in parsed_json_data:
+        writer.writerow(obj)
+
+print(f"Data exported to {output_file} successfully.")
+```
+
+#### Solution B Data Extraction Procedure
+
+This procedure extracts the entire response table from Qualtrics and creates a structured Excel sheet from `AggregatedData`.
+
+1. Browse to your survey in Qualtrics.
+2. Select **Data & Analysis**.
+3. Click **Export & Import**.
+4. Select **Export Data**.
+5. Choose the TSV format.
+6. Follow the download export options.
+7. Follow the procedure for converting the TSV to a master Excel sheet.
+
+##### Download Export Options
+
+Selected options are marked with an [X].
+
+- [X] **Download All Fields**: Includes all data fields in the export.
+- [X] **Use Numeric Values**: Exports the numerical response identifier.
+- **Use Choice Text**: Exports the text of the selected choices.
+- **Compress Data as .zip File**: Compresses the export to save space.
+- **Use Commas for Decimals**: Uses commas as decimal separators.
+- **Remove Line Breaks**: Prevents formatting issues.
+- [X] **Recode Seen but Unanswered Questions as -99**.
+- [X] **Recode Seen but Unanswered Multi-Value Fields as 0**.
+- **Export Viewing Order Data for Randomized Surveys**.
+- **Split Multi-Value Fields into Columns**.
+- [X] **Use Internal IDs in Header**.
+- **Exclude Survey Response Edits**.
+- **Include Download Links for User-Uploaded Files**.
+
+##### Convert Raw Qualtrics TSV to Master
+
+Execute the Python script `Qualtrics_to_Excel.py`. This script will load the TSV, extract relevant data, and export it into an Excel workbook.
+
+#### Solution C Data Extraction Procedure
+
+When final data collection was completed, the export function within Qualtrics was not extracting `AggregatedData`. An alternative solution was devised:
+
+1. Add AggregateData embedded fields using the Qualtrics Field Editor tool.
+2. Select 100 responses per page.
+3. Use Ctrl-A then Ctrl-C to copy all responses.
+4. Paste into a new text file.
+5. Repeat for remaining responses.
+6. Save the file as `TechPT - 2024.09.13 - Solution C RAW Data Export.txt`.
+7. Use the `Solution C Data Transform.py` script.
+8. Use the `Solution C JSON to CSV.py` script.
+
+##### Solution C Data Transform Python Script
+
+This script removes extraneous text and isolates JSON data from the embedded `AggregateData`.
+
+```python
+import re
+import tkinter as tk
+from tkinter import filedialog
+
+# Create a Tkinter root window (hidden)
+root = tk.Tk()
+root.withdraw()
+
+# Open a file dialog to select the input text file
+txt_file = filedialog.askopenfilename(title="Select Text File", filetypes=[("Text Files", "*.txt")])
+
+# Read the raw data
+with open(txt_file, "r") as file:
+    raw_data = file.read()
+
+# Use a regular expression to extract JSON blocks
+json_blocks = re.findall(r'\[.*?\]', raw_data, re.DOTALL)
+cleaned_json_data = ' '.join(json_blocks)
+
+# Write the cleaned JSON data to a new file
+output_dir = filedialog.askdirectory(title="Select Output Directory")
+output_file = f"{output_dir}/cleaned_json_output.txt"
+
+with open(output_file, "w") as file:
+    file.write(cleaned_json_data)
+
+print(f"Cleaned JSON data exported to {output_file}")
+```
+
+##### Solution C JSON to CSV
+
+Updated Solution A's script to accommodate additional JSON dictionary items (IOA fields).
+
+```python
+import json
+import csv
+import tkinter as tk
+from tkinter import filedialog
+import re
+import os
+
+# Create a Tkinter root window (hidden)
+root = tk.Tk()
+root.withdraw()
+
+# Open a file dialog to select the input JSON file
+json_file = filedialog.askopenfilename(title="Select JSON File", filetypes=[("Text Files", "*.txt")])
+
+# Read and clean up the JSON data
+with open(json_file, "r") as file:
+    json_data = file.read()
+cleaned_json_data = re.sub(r'\]\s*\[', ',', json_data)
+
+# Parse the cleaned JSON data
+parsed_json_data = json.loads(cleaned_json_data)
+
+# Define the desired header order, including IOA fields
+desired_field_order = [
+    "InstanceID", "EventNote", "DateTimeStamp:", "ResponseIDx", "CaregiverID", "Respondent", "StudyPhase",
+    "SessionType", "SessionCount", "TotalSessionTrials", "SessionBlockCount", "TrialDirection", "CareDirStart",
+    "CareDirEnd", "SelfMonitoring1", "SelfMonitoring2", "SelfMonitoring3", "SelfMonitoring4", "SelfMonitoring5",
+    "SelfMonitoring6", "SelfMonitoring6a_1", "SelfMonitoring6a_2", "SelfMonitoring6a_3", "ConfResponse",
+    "ConfMonitoring1", "ConfMonitoring2", "ConfMonitoring3", "ConfMonitoring4", "ConfMonitoring5", "ConfMonitoring6",
+    "ConfMonitoring6a_1", "ConfMonitoring6a_2", "ConfMonitoring6a_3", "ConfChildResponse", "ConfederateInteraction",
+    "ConfTrialNote", "ConfSessionNote",
+    # IOA-specific fields
+    "IOAVideoName", "IOADirStart", "IOADirEnd", "IOAMonitoring1", "IOAMonitoring2", "IOAMonitoring3",
+    "IOAMonitoring4", "IOAMonitoring5", "IOAMonitoring6", "IOAMonitoring6a_1", "IOAMonitoring6a_2",
+    "IOAMonitoring6a_3", "IOAResponse", "IOAChildResponse", "IOAConfederateInteraction", "IOATrialNote", 
+    "IOASessionNote"
+]
+
 # Get the base name of the input file with the extension
 input_file_name = os.path.basename(json_file)
 
@@ -1783,58 +1938,21 @@ output_file = os.path.splitext(output_file)[0] + ".csv"
 
 # Open the output file in write mode
 with open(output_file, "w", newline="") as file:
-    # Create a CSV writer object
-    writer = csv.DictWriter(file, fieldnames=field_names)
+    # Create a CSV writer object using the desired header order
+    writer = csv.DictWriter(file, fieldnames=desired_field_order)
 
     # Write the header row
     writer.writeheader()
 
     # Write the data rows
     for obj in parsed_json_data:
-        writer.writerow(obj)
+        # Write each row; missing fields will automatically be handled as empty
+        writer.writerow({field: obj.get(field, '') for field in desired_field_order})
 
 print(f"Data exported to {output_file} successfully.")
 
 ```
 
-#### Solution B data extraction procedure
-
-This procedure extracts the entire response table from qualtrics and creates a structured excel sheet from AggregatedData.
-
-1. Browse to Survey with Qualtrics
-2. Select Data & Analysis
-3. Select Export & Import
-4. Export Data
-5. Select TSV
-6. Follow Download Export Options
-7. Follow Convert Raw Qualtrics TSV to master
-
-##### Download Export Options
-
-Selected options are marked with an [X].
-
-- [X] **Download All Fields**: Includes all data fields in the export.
-- [X]  **Use Numeric Values**: Exports the numerical response identifier.
-- **Use Choice Text**: Exports the text of the selected choices.
-- **Compress Data as .zip File**: Compresses the export to save space.
-- **Use Commas for Decimals**: Uses commas as decimal separators in numerical values.
-- **Remove Line Breaks**: Eliminates line breaks to prevent formatting issues.
-- [X] **Recode Seen but Unanswered Questions as -99**: Codes unanswered questions as -99.
-- [X] **Recode seen but unanswered multi-value fields as 0**: 
-
-- **Export Viewing Order Data for Randomized Surveys**: Includes the order in which questions were presented.
-- **Split Multi-Value Fields into Columns**: Separates multi-value responses into individual columns.
-- [X] **Use Internal IDs in Header**: Includes internal Qualtrics IDs in the export header.
-- **Exclude Survey Response Edits**: Excludes any edits made to survey responses.
-- **Include Download Links for User-Uploaded Files**: Includes URLs for respondent-uploaded files.
-
-Then select Download and organize the file
-
-##### Convert RAW Qualtrics TSV to Master 
-
-Note: This procedure is nearly identical to the Solution A component, but this procedure removes the manual labor of scrubbing and extracting from the initial extraction.
-
-Execute the python script Qualtrics_to_Excel.py. This script will load the CSV, extract the relevant data, and export an excel workbook. 
 
 
 ## Depreciated Features
