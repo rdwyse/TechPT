@@ -77,6 +77,7 @@
 - [Confederate Response Selection](#confederate-response-selection)
 - [Session and Trial Data Entry Synchronization Measures Using Embedded Data](#session-and-trial-data-entry-synchronization-measures-using-embedded-data)
   - [Implementation Strategies](#implementation-strategies)
+- [Data Export](#data-export)
 - [Deprecated Features](#deprecated-features)
   - [Link Variables (Deprecated)](#link-variables-deprecated)
   - [Footer Update Function in Qualtrics Survey](#footer-update-function-in-qualtrics-survey)
@@ -1689,7 +1690,19 @@ This section outlines the procedures and configurations implemented in a Qualtri
    - **Implementation**: Acknowledge the potential need for manual adjustments in data alignment and strive to limit these through careful design
   
 
-### Qualtrics Survey Data Structure and Organization
+
+
+---
+
+### Data Export
+
+Qualtrics offers options for exporting response data. Initially, the solution was to use the Qualtrics Survey website to manually copy and paste the text, but this was labor-intensive, albeit useful for verifying individual responses. The alternative solution is downloading the entire response table from Qualtrics.
+
+- **Solution A: Reviewing Individual Response Entries on HTML**: This process is used to quickly verify the output of a specific session and can be further extracted.
+- **Solution B: Tab Separated Values (.tsv)**: This format, recommended for use with Microsoft Excel, separates each response value with a tab and each response with a newline. Qualtrics TSV exports use UTF-16 encoding to handle special characters.
+- **Solution C: Copy and Paste Method for Manual Extraction:** This method is an alternative approach when automated exports within Qualtrics fail to retrieve the required data (e.g., AggregatedData). It involves using the Qualtrics web interface to manually copy and paste responses into a text file, which can then be transformed into a structured format.
+
+#### Qualtrics Survey Data Structure and Organization
 
 Responses in Qualtrics are stored in the "response data table," accessible via the "Data & Analysis" tab on the dashboard.
 
@@ -1703,18 +1716,6 @@ Responses in Qualtrics are stored in the "response data table," accessible via t
   - **Question Text**: The actual wording of the question as seen by survey participants.
 - **Metadata Fields in Data Table**:
   - Includes system-generated fields such as `startDate`, `endDate`, `progress`, `duration`, and `finished`, which are fixed and cannot be modified within Qualtrics.
-
-Here's a cleaned-up version of your documentation while retaining the original heading structure:
-
----
-
-### Exporting Data
-
-Qualtrics offers options for exporting response data. Initially, the solution was to use the Qualtrics Survey website to manually copy and paste the text, but this was labor-intensive, albeit useful for verifying individual responses. The alternative solution is downloading the entire response table from Qualtrics.
-
-- **Solution A: Reviewing Individual Response Entries on HTML**: This process is used to quickly verify the output of a specific session and can be further extracted.
-- **Solution B: Tab Separated Values (.tsv)**: This format, recommended for use with Microsoft Excel, separates each response value with a tab and each response with a newline. Qualtrics TSV exports use UTF-16 encoding to handle special characters.
-- **Solution C: Copy and Paste Method for Manual Extraction:** This method is an alternative approach when automated exports within Qualtrics fail to retrieve the required data (e.g., AggregatedData). It involves using the Qualtrics web interface to manually copy and paste responses into a text file, which can then be transformed into a structured format.
 
 #### Solution A Data Extraction Procedure
 
