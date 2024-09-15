@@ -1,0 +1,6 @@
+Followed Solution C procedures
+Edit in Excel
+Duplicate Cleaned RAW Data Table
+Rename - Master Table
+Sort CGID by Ascending
+Deleted recorded activity from testing: Row 791 - 871
