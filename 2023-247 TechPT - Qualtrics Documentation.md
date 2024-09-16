@@ -1125,6 +1125,8 @@ The `evaluateAndProvideFeedback` function performs the following tasks:
 
 Below is the implementation of the `evaluateAndProvideFeedback` function:
 
+**Note this code was updated due to error of mastery criteria items. See documentation below**
+
 ```javascript
 // *** START Evaluate Mastery and Provide Feedback Code ***
 
@@ -1292,94 +1294,60 @@ function provideVerbalPrompt(confMonitoringScores, confMonitoringFields) {
 - If mastery is not achieved, it evaluates the most recent trial block for errors and provides feedback or verbal prompts accordingly.
 - Embedded data fields are utilized within Qualtrics Survey Flow to end the Loopblock based upon conditional question display.
 
-#### Overview
+#### **Documentation of Mastery Criteria Update**
 
-The `evaluateAndProvideFeedback` function is designed to evaluate caregiver performance based on the scores stored in `ConfMonitoringScores` and provide necessary feedback or interventions. It checks if mastery is achieved, and if so, updates the embedded data fields to reflect this status.
+##### **Date:** 2024.08.07
 
-#### Function Explanation
+###### **Issue Identified:**
+During the training session for **Case 3**, I identified that the mastery criteria were incorrectly programmed. The same criteria were applied across all study phases, rather than tailoring them to the specific items to be monitored in each phase. I allowed the session to continue without making immediate changes but later corrected the issue for future participants.
 
-The `evaluateAndProvideFeedback` function performs the following tasks:
+- **Research Note:**  
+  "Mastery criteria was wrong. Didn’t realize till part way through the session. Continued the session with no changes. Mastery criteria was met with all of the items. Went home and adjusted criteria for remaining participants. Will reflect change in documentation."
 
-1. **Session Type Check**:
-   - Exits the function if the session type is not appropriate for evaluation (e.g., "0_AC").
-
-2. **Session Block Count Check**:
-   - Ensures that at least three session blocks have been completed.
-   - Exits if `sessionBlockCount` is not a whole number.
-
-3. **Evaluate Mastery**:
-   - Checks if all `ConfMonitoring` items in the last three completed trial blocks have perfect scores.
-   - If mastery is achieved, updates the embedded data fields to indicate mastery and exits the survey loop.
-
-#### Function Code
-
-Below is the implementation of the `evaluateAndProvideFeedback` function:
+###### **Original Mastery Criteria Code:**
+The original code applied the following monitoring items to all phases (`1_T1`, `2_T2`, `3_T3`), without distinction:
 
 ```javascript
-// *** START Evaluate and Provide Feedback Code ***
+var confMonitoringFields = [
+    'ConfMonitoring1', 'ConfMonitoring2', 'ConfMonitoring3', 
+    'ConfMonitoring4', 'ConfMonitoring5', 'ConfMonitoring6a_1', 
+    'ConfMonitoring6a_2', 'ConfMonitoring6a_3'
+];
+```
 
-function evaluateAndProvideFeedback() {
-    // Exit function if session is not an AC
-    var SessionType = Qualtrics.SurveyEngine.getEmbeddedData('SessionType');
-    if (SessionType === "0_AC") {
-        return;
-    }
+###### **Updated Mastery Criteria Code:**
+The corrected code now assigns different monitoring items to each phase, based on the specific training requirements for that phase:
 
-    // Exit function if sessionBlockCount is less than 3. This ensures that at least 3 trial blocks have been completed to check for mastery
-    var sessionBlockCount = parseFloat(Qualtrics.SurveyEngine.getEmbeddedData('SessionBlockCount')) || 0;
-    console.log("Session Block Count: ", sessionBlockCount);
-    console.log("Total Session Trials: ", Qualtrics.SurveyEngine.getEmbeddedData('TotalSessionTrials'));
-    if (sessionBlockCount < 3) {
-        return;
-    }
-
-    // Check if sessionBlockCount is a whole number (i.e., a complete trial block)
-    if (sessionBlockCount % 1 !== 0) {
-        console.log("SessionBlockCount is not a whole number. Exiting function.");
-        return;
-    }
-
+```javascript
+//Mastery Items per phase
+var studyPhase = Qualtrics.SurveyEngine.getEmbeddedData('StudyPhase');
+if (studyPhase === "1_T1") {
+    var confMonitoringFields = [
+        'ConfMonitoring1', 'ConfMonitoring2', 'ConfMonitoring6a_1', 
+        'ConfMonitoring6a_2', 'ConfMonitoring6a_3'
+    ];
+} else if (studyPhase === "2_T2") {
+    var confMonitoringFields = [
+        'ConfMonitoring3', 'ConfMonitoring4', 'ConfMonitoring5'
+    ];
+} else if (studyPhase === "3_T3") {
     var confMonitoringFields = [
         'ConfMonitoring1', 'ConfMonitoring2', 'ConfMonitoring3', 
         'ConfMonitoring4', 'ConfMonitoring5', 'ConfMonitoring6a_1', 
         'ConfMonitoring6a_2', 'ConfMonitoring6a_3'
     ];
-    var confMonitoringScores = JSON.parse(Qualtrics.SurveyEngine.getEmbeddedData('ConfMonitoringScores')) || {};
-
-    console.log("ConfMonitoringScores: ", JSON.stringify(confMonitoringScores));
-
-    // Mastery: Check if all confMonitoring items in the last three completed trial blocks are correct
-    var allCorrect = confMonitoringFields.every(function(field) {
-        var scores = confMonitoringScores[field] || [[]];
-        var lastThreeBlocks = scores.slice(-4, -1); // Get the last three completed trial blocks accounting for the carrier field added by updateConfMonitoringArrays
-
-        return lastThreeBlocks.every(function(block, index) {
-            var blockScore = block.reduce((a, b) => a + b, 0);
-            console.log(`Field: ${field}, Block ${index + 1} score:`, blockScore);
-            return blockScore === 2;
-        });
-    });
-
-    if (allCorrect) {
-        console.log("Mastery achieved!");
-        Qualtrics.SurveyEngine.setEmbeddedData('LoopSwitch', '0');
-        Qualtrics.SurveyEngine.setEmbeddedData('BreakSwitch', '1');
-        Qualtrics.SurveyEngine.setEmbeddedData('MasteryAchieved', '1');
-        return;
-    }
-
-
 }
-
-// *** END Evaluate and Provide Feedback Code ***
 ```
 
-#### Key Points
-
-- The function ensures the session type and block count criteria are met before evaluating mastery.
-- It checks if all relevant fields have perfect scores in the last three trial blocks to determine mastery.
-- If mastery is achieved, it updates the necessary embedded data fields to reflect the status and exits the survey loop.
-- Embeded data fields are utilized within Qualtrics Survey Flow to end the Loopblock based upon conditional question display.
+###### **Explanation of the Change:**
+- **Original Code Issue:** The original code treated all study phases the same, applying all eight **ConfMonitoring** items (`ConfMonitoring1` to `ConfMonitoring6a_3`) universally, which was only appropriate for **StudyPhase 3_T3**. This resulted in incorrect mastery criteria for the earlier phases of training.
+- **Updated Code Correction:**
+    - **StudyPhase 1_T1** now evaluates **ConfMonitoring1**, **ConfMonitoring2**, and the **ConfMonitoring6** subitems, focusing on attention and feedback.
+    - **StudyPhase 2_T2** expands to include **ConfMonitoring1**, **ConfMonitoring2**, **ConfMonitoring3**, reflecting more direction delivery.
+    - **StudyPhase 3_T3** retains the full set of monitoring items, as it represents the most comprehensive evaluation stage.
+- **Case 3**: The error was identified during the first training session with **Case 3**, but the criteria had been met using the original configuration. Future participants will be evaluated based on the updated, phase-specific criteria.
+  
+- **Observation:** This adjustment ensures that each phase is evaluated according to its specific mastery criteria.
 
 
 ## Defined direction pool for each caregiver
