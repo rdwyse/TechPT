@@ -325,43 +325,52 @@ This documentation ensures that the data processes are transparent, replicable, 
 ## Table Naming Convention:
 
 ```plaintext
-<CaseID or GroupDescription>_<SessionType>_<StudyPhase>_<Respondent>_<TrialType>_<Version>
+<CaseID or GroupDescription>_<SessionType>_<StudyPhase>_<Respondent>_<Version>
 ```
 
 ### Components Breakdown:
-1. **CaseID or GroupDescription**: Use either a specific case ID (e.g., **Case1**) or a group descriptor (e.g., **AllCases**).
-2. **SessionType**:
+1. **CaseID or GroupDescription**: 
+   - Either a specific case ID (e.g., **Case1**, **Case2**) or a group descriptor (e.g., **AllCases**, **BaselineGroup**).
+   
+2. **SessionType**: 
    - **AC**: Actual Child trials.
    - **SC**: Simulated Child trials.
+   
 3. **StudyPhase**:
    - **BL**: Baseline.
-   - **T1**, **T2**, **T3**, **T4**: Training Phases 1–4.
+   - **T1**, **T2**, **T3**, **T4**: Training Phases 1 to 4.
    - **RTB**: Reversal to Baseline.
-4. **Respondent**: Either **CARE** (Caregiver), **CONF** (Confederate), or **IOA** (Interobserver Agreement).
-5. **TrialType**: Specify **ActualChildTrials**, **SimulatedChildTrials**, or **AllTrials**.
-6. **Version**: **V1, V2**, etc.
+
+4. **Respondent**:
+   - **CARE**: Caregiver.
+   - **CONF**: Confederate.
+   - **IOA**: Interobserver Agreement.
+   
+5. **Version**: 
+   - **V1**, **V2**, etc., for different versions of the table.
 
 ### Example Table Names:
 
 1. **All Actual Child Trials for Case 1 (Caregiver as Respondent)**:
-   - `Case1_AC_ALL_CARE_ActualChildTrials_V1`: All actual child trials for **Case 1**, **Actual Child** session type, across all phases, with **Caregiver (CARE)** as respondent, version 1.
-   
-2. **Simulated Child Trials for Training Phase 2 (T2) for Case 1 (Confederate as Respondent)**:
-   - `Case1_SC_T2_CONF_SimulatedChildTrials_V1`: Simulated child trials for **Case 1**, **Simulated Child** session type, in **T2** (Training Phase 2), with **Confederate (CONF)** as respondent, version 1.
-   
-3. **All Trials for Baseline Phase (BL) Across All Respondents**:
-   - `Case1_ALL_BL_AllRespondents_AllTrials_V1`: All trials during the **Baseline phase (BL)** for **Case 1**, across all session types and respondents, version 1.
-   
-4. **All Actual Child Trials for All Cases in Training Phases**:
-   - `AllCases_AC_ALL_AllRespondents_ActualChildTrials_V1`: Aggregated table of **all actual child trials** for all cases, across all phases and respondents, version 1.
+   - `Case1_AC_ALL_CARE_V1`: All actual child trials for **Case 1**, **AC** session type, across all phases, with **Caregiver (CARE)** as the respondent, version 1.
 
-5. **All Simulated Child Trials for Reversal to Baseline Phase (RTB) (IOA as Respondent)**:
-   - `Case1_SC_RTB_IOA_SimulatedChildTrials_V1`: Simulated child trials during the **Reversal to Baseline (RTB)** phase for **Case 1**, with **IOA** as respondent, version 1.
+2. **Simulated Child Trials for Training Phase 2 (T2) for Case 1 (Confederate as Respondent)**:
+   - `Case1_SC_T2_CONF_V1`: Simulated child trials for **Case 1**, in **SC** session type, during **T2** (Training Phase 2), with **Confederate (CONF)** as the respondent, version 1.
+
+3. **All Trials for Baseline Phase (BL) Across All Respondents**:
+   - `Case1_ALL_BL_AllRespondents_V1`: All trials during the **Baseline phase (BL)** for **Case 1**, across all session types and respondents, version 1.
+
+4. **Actual Child Trials for All Cases in Training Phases**:
+   - `AllCases_AC_ALL_AllRespondents_V1`: Aggregated table of **all actual child trials** for all cases, across all phases and respondents, version 1.
+
+5. **Simulated Child Trials for Reversal to Baseline Phase (RTB) for IOA Respondent**:
+   - `Case1_SC_RTB_IOA_V1`: Simulated child trials during the **Reversal to Baseline (RTB)** phase for **Case 1**, with **IOA** as the respondent, version 1.
 
 ### Broader Aggregated Examples:
 1. **All Actual Child Trials for All Cases Across All Phases**:
-   - `AllCases_AC_ALL_AllRespondents_ActualChildTrials_V1`: All actual child trials for all cases, across all phases and respondents, version 1.
-   
-2. **All Records for Case 1 Across All Phases and Respondents**:
-   - `Case1_ALL_ALL_AllRespondents_AllRecords_V1`: Aggregated table of all records for **Case 1**, across all phases and respondents, version 1.
+   - `AllCases_AC_ALL_AllRespondents_V1`: All actual child trials for all cases, across all phases and respondents, version 1.
 
+2. **All Records for Case 1 Across All Phases and Respondents**:
+   - `Case1_ALL_ALL_AllRespondents_V1`: Aggregated table of all records for **Case 1**, across all phases and respondents, version 1.
+
+This simplified structure retains all necessary components and makes it easier to handle and categorize tables efficiently. Let me know if you’d like to move forward with organizing or managing your data using this structure!
