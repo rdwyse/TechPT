@@ -1,3 +1,48 @@
+TechPT Data Management Documentation
+2024.09.17
+
+# Table of Contents
+
+1. [Introduction to the Data Management Documentation](#introduction-to-the-data-management-documentation)
+2. [Data Cleanup Process Documentation](#data-cleanup-process-documentation)
+    - [Date: 2024.09.13](#date-20240913)
+        - [Following Solution C Procedures](#following-solution-c-procedures)
+        - [Backing Up the Original Data](#backing-up-the-original-data)
+        - [Configuring Excel Worksheet](#configuring-excel-worksheet)
+        - [Sorting and Filtering, and Removing Testing Data](#sorting-and-filtering-and-removing-testing-data)
+    - [Date: 2024.09.15](#date-20240915)
+        - [Transfer SelfMonitoring6 to ConfMonitoring6](#transfer-selfmonitoring6-to-confmonitoring6)
+        - [Cleaning Confederate Guide End of Session Entries](#cleaning-confederate-guide-end-of-session-entries)
+        - [Additional test data removal](#additional-test-data-removal)
+    - [Date: 2024.09.16](#date-20240916)
+        - [Set CaregiverID to Case Assignment](#set-caregiverid-to-case-assignment)
+        - [Cleaning CaregiverID during simulated child session](#cleaning-caregiverid-during-simulated-child-session)
+        - [Adjusting Records for Caregiver Entry Due to Guide Reset](#adjusting-records-for-caregiver-entry-due-to-guide-reset)
+            - [EDIT 1](#edit-1)
+            - [EDIT 2](#edit-2)
+        - [Investigate Confederate note indicating caregiver guide issue](#investigate-confederate-note-indicating-caregiver-guide-issue)
+        - [Adjusting Records for Confederate Compliance Based on Trial Notes](#adjusting-records-for-confederate-compliance-based-on-trial-notes)
+        - [Adjusting Confederate Interaction Based on Trial Notes](#adjusting-confederate-interaction-based-on-trial-notes)
+        - [Correcting CaregiverID for Confederate Guide Based on Research Notes](#correcting-caregiverid-for-confederate-guide-based-on-research-notes)
+        - [Review of Confederate Guide Entry - No Action Required](#review-of-confederate-guide-entry---no-action-required)
+        - [Correcting Study Phase and CaregiverID Based on Research and Session Notes](#correcting-study-phase-and-caregiverid-based-on-research-and-session-notes)
+        - [Mastery Criteria Review Based on 8029hmvgjh Note](#mastery-criteria-review-based-on-8029hmvgjh-note)
+        - [Missing TrialDirection Recordings During Training Sessions](#missing-trialdirection-recordings-during-training-sessions)
+
+3. [Table Naming Convention](#table-naming-convention)
+    - [Components Breakdown](#components-breakdown)
+    - [Example Table Names](#example-table-names)
+        1. [All Actual Child Trials for Case 1 (Caregiver as Respondent)](#all-actual-child-trials-for-case-1-caregiver-as-respondent)
+        2. [Simulated Child Trials for Training Phase 2 (T2) for Case 1 (Confederate as Respondent)](#simulated-child-trials-for-training-phase-2-t2-for-case-1-confederate-as-respondent)
+        3. [All Trials for Baseline Phase (BL) Across All Respondents](#all-trials-for-baseline-phase-bl-across-all-respondents)
+        4. [All Actual Child Trials for All Cases in Training Phases](#all-actual-child-trials-for-all-cases-in-training-phases)
+        5. [All Simulated Child Trials for Reversal to Baseline Phase (RTB) (IOA as Respondent)](#all-simulated-child-trials-for-reversal-to-baseline-phase-rtb-ioa-as-respondent)
+    - [Broader Aggregated Examples](#broader-aggregated-examples)
+        1. [All Actual Child Trials for All Cases Across All Phases](#all-actual-child-trials-for-all-cases-across-all-phases)
+        2. [All Records for Case 1 Across All Phases and Respondents](#all-records-for-case-1-across-all-phases-and-respondents)
+
+
+
 # Introduction to the Data Management Documentation
 
 The data management documentation for the "TechPT" project serves as a comprehensive guide detailing the organization, extraction, processing, and validation of all data collected during the study. This study examines the functional relationship between caregiver participation in a technology-assisted training program and the effectiveness of direction delivery to children. To ensure the accuracy and integrity of the collected data, meticulous records have been maintained throughout each phase of the research, from initial data capture to final analysis. 
@@ -276,3 +321,47 @@ This documentation ensures that the data processes are transparent, replicable, 
 
 - Action:  
   - Documented this oversight for future reference without attempting to correct javascript for future studies.
+
+## Table Naming Convention:
+
+```plaintext
+<CaseID or GroupDescription>_<SessionType>_<StudyPhase>_<Respondent>_<TrialType>_<Version>
+```
+
+### Components Breakdown:
+1. **CaseID or GroupDescription**: Use either a specific case ID (e.g., **Case1**) or a group descriptor (e.g., **AllCases**).
+2. **SessionType**:
+   - **AC**: Actual Child trials.
+   - **SC**: Simulated Child trials.
+3. **StudyPhase**:
+   - **BL**: Baseline.
+   - **T1**, **T2**, **T3**, **T4**: Training Phases 1–4.
+   - **RTB**: Reversal to Baseline.
+4. **Respondent**: Either **CARE** (Caregiver), **CONF** (Confederate), or **IOA** (Interobserver Agreement).
+5. **TrialType**: Specify **ActualChildTrials**, **SimulatedChildTrials**, or **AllTrials**.
+6. **Version**: **V1, V2**, etc.
+
+### Example Table Names:
+
+1. **All Actual Child Trials for Case 1 (Caregiver as Respondent)**:
+   - `Case1_AC_ALL_CARE_ActualChildTrials_V1`: All actual child trials for **Case 1**, **Actual Child** session type, across all phases, with **Caregiver (CARE)** as respondent, version 1.
+   
+2. **Simulated Child Trials for Training Phase 2 (T2) for Case 1 (Confederate as Respondent)**:
+   - `Case1_SC_T2_CONF_SimulatedChildTrials_V1`: Simulated child trials for **Case 1**, **Simulated Child** session type, in **T2** (Training Phase 2), with **Confederate (CONF)** as respondent, version 1.
+   
+3. **All Trials for Baseline Phase (BL) Across All Respondents**:
+   - `Case1_ALL_BL_AllRespondents_AllTrials_V1`: All trials during the **Baseline phase (BL)** for **Case 1**, across all session types and respondents, version 1.
+   
+4. **All Actual Child Trials for All Cases in Training Phases**:
+   - `AllCases_AC_ALL_AllRespondents_ActualChildTrials_V1`: Aggregated table of **all actual child trials** for all cases, across all phases and respondents, version 1.
+
+5. **All Simulated Child Trials for Reversal to Baseline Phase (RTB) (IOA as Respondent)**:
+   - `Case1_SC_RTB_IOA_SimulatedChildTrials_V1`: Simulated child trials during the **Reversal to Baseline (RTB)** phase for **Case 1**, with **IOA** as respondent, version 1.
+
+### Broader Aggregated Examples:
+1. **All Actual Child Trials for All Cases Across All Phases**:
+   - `AllCases_AC_ALL_AllRespondents_ActualChildTrials_V1`: All actual child trials for all cases, across all phases and respondents, version 1.
+   
+2. **All Records for Case 1 Across All Phases and Respondents**:
+   - `Case1_ALL_ALL_AllRespondents_AllRecords_V1`: Aggregated table of all records for **Case 1**, across all phases and respondents, version 1.
+
