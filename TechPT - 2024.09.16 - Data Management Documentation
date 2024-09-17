@@ -9,7 +9,7 @@ This documentation outlines the methods used for data handling, focusing on the 
 4. **Validation and Integrity Checks**: Steps taken to verify the completeness and accuracy of the data, ensuring any anomalies are identified and corrected.
 5. **Preparation for GraphPad Prism**: Final preparation of the datasets for statistical analysis and visualization, including specific formatting techniques required for smooth import into GraphPad Prism.
 
-This documentation ensures that the data processes are transparent, replicable, and accurate, supporting the study's findings and contributing to the scientific rigor of the project【9†source】【8†source】.
+This documentation ensures that the data processes are transparent, replicable, and accurate, supporting the study's findings and contributing to the scientific rigor of the project.
 
 ### **Data Cleanup Process Documentation**
 
@@ -17,7 +17,7 @@ This documentation ensures that the data processes are transparent, replicable, 
 
 ##### **Following Solution C Procedures**
 - **Action:** Followed Solution C procedures for manual extraction of the JSON data and converting it to a structured format.
-  - See Solution C documentation for details within the qualtics guide.
+  - See Solution C documentation for details within the qualtics guide (https://github.com/rdwyse/TechPT/blob/main/2023-247%20TechPT%20-%20Qualtrics%20Documentation.md#solution-c-data-extraction-procedure).
 
 ##### **Backing Up the Original Data**
 - **Action:** Saved a copy of the original raw data table as a separate document (`TechPT - 2024.09.13 - RAW Qualtrics Data transformed to CSV - Original Unedited.CSV`).
