@@ -322,55 +322,607 @@ This documentation ensures that the data processes are transparent, replicable, 
 - Action:  
   - Documented this oversight for future reference without attempting to correct javascript for future studies.
 
-## Table Naming Convention:
+
+# Data Preparation
+
+## Workflow Summary 
+
+This workflow combines the strengths of **Excel** and **Power Query** for data management and **GraphPad Prism** for visualization. The goal is to efficiently organize data and produce high-quality graphs without performing complex statistical analysis.
+
+### 1. **Data Preparation in Excel**:
+   - **Data Import**: The master table is loaded into Excel and processed using **Power Query**.
+   - **Power Query for Filtering and Transformation**: Power Query is used to filter and transform the dataset (e.g., extracting data for specific cases, respondents, or sessions). Filters are applied to select relevant columns and rows, such as extracting all **Actual Child (AC)** trials for **Case 1** with **Confederate (CONF)** as the respondent.
+   - **Automated Updates**: The query results are loaded back into Excel. Any changes made to the master table are reflected in the query results when refreshed.
+   - **Excel Functions for Real-Time Calculations**: Supplemental calculations such as averages, compliance rates, or specific lookups are handled within Excel using functions like `FILTER`, `XLOOKUP`, and `AVERAGE`.
+
+### 2. **Exporting Data to GraphPad Prism**:
+   - Once the data is cleaned and organized in Excel, it is exported as a **CSV file** for use in GraphPad Prism.
+   - This file will contain the relevant variables for generating  visualizations.
+   
+### 3. **Visualization in GraphPad Prism**:
+   - **Data Import**: The cleaned CSV file is imported into GraphPad Prism.
+   - **Graph Creation**: Prism is used to create publication-quality graphs, focusing on visual comparisons such as **SelfMonitoring vs. ConfMonitoring** or phase-by-phase analyses.
+   - **No Complex Statistics**: Since complex statistical analysis is not needed, Prism is used mainly for its graphing capabilities.
+
+### Key Points:
+- **Excel** is used for **data management** and **real-time calculations**.
+- **Power Query** allows for dynamic filtering and automated updates from the master table.
+- **GraphPad Prism** is used solely for generating high-quality visualizations, without conducting complex statistical tests.
+- **Exporting** data from Excel to Prism as a **CSV** ensures smooth transitions between data preparation and visualization.
+
+
+## Naming Convention:
 
 ```plaintext
-<CaseID or GroupDescription>_<SessionType>_<StudyPhase>_<Respondent>_<Version>
+<SessionType>_<StudyPhase>_<CaregiverID>_<Respondent>_<Additional Details>_<Version>
 ```
 
 ### Components Breakdown:
-1. **CaseID or GroupDescription**: 
-   - Either a specific case ID (e.g., **Case1**, **Case2**) or a group descriptor (e.g., **AllCases**, **BaselineGroup**).
-   
-2. **SessionType**: 
+1. **SessionType**: 
    - **AC**: Actual Child trials.
    - **SC**: Simulated Child trials.
    
-3. **StudyPhase**:
+2. **StudyPhase**:
    - **BL**: Baseline.
-   - **T1**, **T2**, **T3**, **T4**: Training Phases 1 to 4.
+   - **T1**, **T2**, **T3**: Training Phases 1 to 3.
    - **RTB**: Reversal to Baseline.
+
+3. **CaregiverID or GroupDescription**: 
+   - Either a specific case ID (e.g., **Case1**, **Case2**) or a group descriptor (e.g., **AllCases**, **BaselineGroup**).
 
 4. **Respondent**:
    - **CARE**: Caregiver.
    - **CONF**: Confederate.
    - **IOA**: Interobserver Agreement.
+
+5. **Additional Details**: 
+   - Any additional descriptors for the dataset, such as **TrialType**, **ChildTrials**, **Monitoring**, etc., to differentiate between datasets if needed.
    
-5. **Version**: 
+6. **Version**: 
    - **V1**, **V2**, etc., for different versions of the table.
 
 ### Example Table Names:
 
 1. **All Actual Child Trials for Case 1 (Caregiver as Respondent)**:
-   - `Case1_AC_ALL_CARE_V1`: All actual child trials for **Case 1**, **AC** session type, across all phases, with **Caregiver (CARE)** as the respondent, version 1.
+   - `AC_T1_Case1_CARE_ChildTrials_V1`: All actual child trials for **Case 1**, in **T1**, with **Caregiver (CARE)** as the respondent, version 1.
 
 2. **Simulated Child Trials for Training Phase 2 (T2) for Case 1 (Confederate as Respondent)**:
-   - `Case1_SC_T2_CONF_V1`: Simulated child trials for **Case 1**, in **SC** session type, during **T2** (Training Phase 2), with **Confederate (CONF)** as the respondent, version 1.
+   - `SC_T2_Case1_CONF_ChildTrials_V1`: Simulated child trials for **Case 1**, in **T2**, with **Confederate (CONF)** as the respondent, version 1.
 
-3. **All Trials for Baseline Phase (BL) Across All Respondents**:
-   - `Case1_ALL_BL_AllRespondents_V1`: All trials during the **Baseline phase (BL)** for **Case 1**, across all session types and respondents, version 1.
+3. **All Trials for Baseline Phase (BL) for Case 1 (Interobserver Agreement as Respondent)**:
+   - `AC_BL_Case1_IOA_AllTrials_V1`: All trials during the **Baseline phase (BL)** for **Case 1**, with **IOA** as the respondent, version 1.
 
 4. **Actual Child Trials for All Cases in Training Phases**:
-   - `AllCases_AC_ALL_AllRespondents_V1`: Aggregated table of **all actual child trials** for all cases, across all phases and respondents, version 1.
+   - `AC_T1_AllCases_AllRespondents_ChildTrials_V1`: Aggregated table of **all actual child trials** for all cases, during **T1**, across all respondents, version 1.
 
 5. **Simulated Child Trials for Reversal to Baseline Phase (RTB) for IOA Respondent**:
-   - `Case1_SC_RTB_IOA_V1`: Simulated child trials during the **Reversal to Baseline (RTB)** phase for **Case 1**, with **IOA** as the respondent, version 1.
+   - `SC_RTB_Case1_IOA_ChildTrials_V1`: Simulated child trials during the **Reversal to Baseline (RTB)** phase for **Case 1**, with **IOA** as the respondent, version 1.
 
 ### Broader Aggregated Examples:
 1. **All Actual Child Trials for All Cases Across All Phases**:
-   - `AllCases_AC_ALL_AllRespondents_V1`: All actual child trials for all cases, across all phases and respondents, version 1.
+   - `AC_ALL_AllCases_AllRespondents_ChildTrials_V1`: All actual child trials for all cases, across all phases and respondents, version 1.
 
 2. **All Records for Case 1 Across All Phases and Respondents**:
-   - `Case1_ALL_ALL_AllRespondents_V1`: Aggregated table of all records for **Case 1**, across all phases and respondents, version 1.
+   - `AC_ALL_Case1_AllRespondents_AllTrials_V1`: Aggregated table of all records for **Case 1**, across all phases and respondents, version 1.
 
-This simplified structure retains all necessary components and makes it easier to handle and categorize tables efficiently. Let me know if you’d like to move forward with organizing or managing your data using this structure!
+ 
+# Data Preperation in Excel
+
+## Outline for Data Preparation in Excel
+
+### 1. **Introduction**
+   - Brief overview of the purpose of data preparation in Excel.
+   - Explain the goal: to clean, filter, and organize data for visualization in GraphPad Prism, using Excel and Power Query.
+
+### 2. **Loading the Master Table**
+   - **Step 1**: Open Excel and import the master table.
+     - Navigate to the **Data** tab.
+     - Select **Get Data** → **From File** → **From CSV** to load the master table into Excel.
+   - **Step 2**: Ensure that the table is formatted as a proper Excel table.
+     - Click on the table and select **Format as Table** to enable easier filtering and querying.
+
+### 3. **Using Power Query for Data Filtering**
+   - **Step 1**: Load the master table into Power Query.
+     - Go to the **Data** tab and click **Get Data** → **From Table/Range** to open the table in Power Query: use **master table range A1:BB786**
+   - **Step 2**: Apply filters to the dataset.
+     - Filter based on specific variables like **CaseID** (e.g., **Case 1**), **SessionType** (e.g., **AC** for Actual Child trials), and **Respondent** (e.g., **CONF** for Confederate).
+     - Example of filtering: 
+       - Filter for **Case 1**.
+       - Filter for **SessionType = AC**.
+       - Filter for **Respondent = CONF**.
+   - **Step 3**: Select relevant columns.
+     - Use `Table.SelectColumns` to keep only necessary columns (e.g., **InstanceID**, **CaregiverID**, **ConfMonitoring1-6**, etc.).
+     - This step ensures that only essential data is exported for further analysis.
+
+### 4. **Loading Data from Power Query Back to Excel**
+   - **Step 1**: Load the transformed query data back into Excel.
+     - In Power Query, select **Close & Load** → **Load to** to export the query results as a new table in Excel.
+   - **Step 2**: Save the query results in a separate worksheet for easy reference.
+
+    - **Change the Query to Load as a Table**
+      - If the query is currently a Connection Only query (meaning it's not loaded to a worksheet), you can modify its settings:
+      - Go to Data > Queries & Connections.
+      - Right-click your query and choose Load To....
+      - In the Import Data dialog box that appears, choose Table and select a worksheet where you'd like the data to load.
+
+### Actual Child Confederate Monitoring Power Query Code with Dynamic Parameters
+
+
+This Power Query code is designed to extract, filter, and compute averages based on **ConfMonitoring** data. It leverages parameters for flexibility, allowing dynamic filtering based on key variables like `CaregiverID`, `Respondent`, `SessionType`, and `EventNote`. The query processes and computes averages for different sets of monitoring data, and it is structured for reusability.
+
+#### **Overview:**
+The query dynamically filters rows from the dataset based on parameters and computes custom averages for **T1**, **T2**, and **AllConfMonitoring** sets of monitoring columns. The query uses the following steps:
+1. **Define Parameters**: Provides flexibility for different datasets.
+2. **Data Transformation**: Adjusts data types for consistency.
+3. **Filtering Rows**: Filters based on the defined parameters.
+4. **Column Selection**: Retains only the necessary columns.
+5. **Custom Calculations**: Calculates averages for T1, T2, and all **ConfMonitoring** columns.
+
+#### Example Power Query Code:
+
+
+
+```go
+let
+	// Define parameters
+	CaregiverID = "Case1",        // Parameter: Case1, Case2, Case3, Case4
+	Respondent = "1_CONF",        // Parameter: 1_CONF, 2_IOA, CARE (Confederate, IOA, Caregiver)
+	SessionType = "0_AC",         // Parameter: 0_AC (Actual Child), 1_SC (Simulated Child)
+	EventNote = "3.0_Conf_TX_SC_TrialComplete",  // Parameter: 3.0_Conf_TX_SC_TrialComplete, 2.0_Conf_TX_BL_Start, etc.
+
+
+    // Source data from Excel table
+    Source = Excel.CurrentWorkbook(){[Name="Table2"]}[Content],
+
+    // Change data types for consistency
+    #"Changed Type" = Table.TransformColumnTypes(Source, {
+        {"InstanceID", type text}, {"EventNote", type text}, {"DateTimeStamp", type datetimezone}, 
+        {"ResponseIDx", type text}, {"CaregiverID", type text}, {"Respondent", type text}, 
+        {"StudyPhase", type text}, {"SessionType", type text}, {"SessionCount", Int64.Type}, 
+        {"TotalSessionTrials", Int64.Type}, {"SessionBlockCount", type number}, {"TrialDirection", type text}, 
+        {"CareDirStart", type datetimezone}, {"CareDirEnd", type datetimezone}, 
+        {"SelfMonitoring1", Int64.Type}, {"SelfMonitoring2", Int64.Type}, {"SelfMonitoring3", Int64.Type}, 
+        {"SelfMonitoring4", Int64.Type}, {"SelfMonitoring5", Int64.Type}, {"SelfMonitoring6", Int64.Type}, 
+        {"SelfMonitoring6a_1", Int64.Type}, {"SelfMonitoring6a_2", Int64.Type}, {"SelfMonitoring6a_3", Int64.Type}, 
+        {"ConfResponse", type text}, {"ConfMonitoring1", Int64.Type}, {"ConfMonitoring2", Int64.Type}, 
+        {"ConfMonitoring3", Int64.Type}, {"ConfMonitoring4", Int64.Type}, {"ConfMonitoring5", Int64.Type}, 
+        {"ConfMonitoring6", Int64.Type}, {"ConfMonitoring6a_1", Int64.Type}, {"ConfMonitoring6a_2", Int64.Type}, 
+        {"ConfMonitoring6a_3", Int64.Type}, {"ConfChildResponse", type text}, {"ConfederateInteraction", Int64.Type}, 
+        {"ConfTrialNote", type text}, {"ConfSessionNote", type text}, {"IOAVideoName", type any}, 
+        {"IOADirStart", type any}, {"IOADirEnd", type any}, {"IOAMonitoring1", type any}, 
+        {"IOAMonitoring2", type any}, {"IOAMonitoring3", type any}, {"IOAMonitoring4", type any}, 
+        {"IOAMonitoring5", type any}, {"IOAMonitoring6", type any}, {"IOAMonitoring6a_1", type any}, 
+        {"IOAMonitoring6a_2", type any}, {"IOAMonitoring6a_3", type any}, {"IOAResponse", type any}, 
+        {"IOAChildResponse", type any}, {"IOAConfederateInteraction", type any}, {"IOATrialNote", type any}, 
+        {"IOASessionNote", type any}}),
+
+    // Apply filtering for CaregiverID, Respondent, SessionType, and EventNote using parameters
+    #"Filtered Rows" = Table.SelectRows(#"Changed Type", each 
+        ([CaregiverID] = CaregiverID) and 
+        ([Respondent] = Respondent) and 
+        ([SessionType] = SessionType) and 
+        ([EventNote] = EventNote)
+    ),
+
+    // Remove unnecessary columns, keeping only relevant ones
+    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows", {
+        "InstanceID", "EventNote", "DateTimeStamp", "ResponseIDx", "CaregiverID", "Respondent", 
+        "StudyPhase", "SessionType", "SessionCount", "TotalSessionTrials", "SessionBlockCount", 
+        "ConfMonitoring1", "ConfMonitoring2", "ConfMonitoring3", "ConfMonitoring4", "ConfMonitoring5", 
+        "ConfMonitoring6a_1", "ConfMonitoring6a_2", "ConfMonitoring6a_3", "ConfChildResponse", 
+        "ConfederateInteraction", "ConfTrialNote"
+    }),
+
+    // Add a custom column for T1 average (ConfMonitoring1, 2, 6a_1, 6a_2, 6a_3)
+    #"Added Custom" = Table.AddColumn(#"Removed Other Columns", "T1_Average", each 
+        ([ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]) / 5
+    ),
+
+    // Add a custom column for T2 average (ConfMonitoring3, 4, 5)
+    #"Added Custom1" = Table.AddColumn(#"Added Custom", "T2_Average", each 
+        ([ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5]) / 3
+    ),
+
+    // Add a custom column for AllConfMonitoring average (all ConfMonitoring columns)
+    #"Added Custom2" = Table.AddColumn(#"Added Custom1", "AllConfMonitoring_Average", each 
+        ([ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5] + 
+        [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]) / 8
+    )
+
+in
+    #"Added Custom2"
+```
+
+#### **Steps Breakdown:**
+
+##### 1. **Defining Parameters:**
+The following parameters are defined at the beginning of the query to allow for dynamic filtering. These parameters can be changed at runtime to accommodate different data sets:
+
+```go
+CaregiverID = "Case1",        // Parameter: Case1, Case2, Case3, Case4
+Respondent = "1_CONF",        // Parameter: 1_CONF, 2_IOA, CARE (Confederate, IOA, Caregiver)
+SessionType = "0_AC",         // Parameter: 0_AC (Actual Child), 1_SC (Simulated Child)
+EventNote = "3.0_Conf_TX_SC_TrialComplete"  // Parameter: 3.0_Conf_TX_SC_TrialComplete, 2.0_Conf_TX_BL_Start, etc.
+```
+
+- **CaregiverID**: Allows selecting specific caregivers, such as Case1, Case2, etc.
+- **Respondent**: Defines the respondent, e.g., `1_CONF` for Confederate, `CARE` for Caregiver, or `2_IOA` for IOA.
+- **SessionType**: Distinguishes between Actual Child (0_AC) and Simulated Child (1_SC) session types.
+- **EventNote**: Specifies trial events, such as `3.0_Conf_TX_SC_TrialComplete` or others based on the dataset.
+
+##### 2. **Source Data and Type Conversion:**
+The query pulls data from an Excel table named `"Table2"` and applies type transformations to ensure consistency across the dataset.
+
+```go
+Source = Excel.CurrentWorkbook(){[Name="Table2"]}[Content],
+#"Changed Type" = Table.TransformColumnTypes(Source, {
+    {"InstanceID", type text}, {"EventNote", type text}, {"DateTimeStamp", type datetimezone}, 
+    {"ResponseIDx", type text}, {"CaregiverID", type text}, {"Respondent", type text}, 
+    {"StudyPhase", type text}, {"SessionType", type text}, {"SessionCount", Int64.Type}, 
+    {"TotalSessionTrials", Int64.Type}, {"SessionBlockCount", type number}, {"ConfMonitoring1", Int64.Type}, 
+    {"ConfMonitoring2", Int64.Type}, {"ConfMonitoring3", Int64.Type}, {"ConfMonitoring4", Int64.Type}, 
+    {"ConfMonitoring5", Int64.Type}, {"ConfMonitoring6a_1", Int64.Type}, {"ConfMonitoring6a_2", Int64.Type}, 
+    {"ConfMonitoring6a_3", Int64.Type}, {"ConfChildResponse", type text}, {"ConfederateInteraction", Int64.Type}, 
+    {"ConfTrialNote", type text}, {"ConfSessionNote", type text}})
+```
+This step ensures proper data types are applied (e.g., text for IDs, integers for monitoring columns, and datetime for timestamps).
+
+##### 3. **Filtering Rows Using Parameters:**
+Rows are filtered based on the defined parameters. This ensures that only rows matching the selected `CaregiverID`, `Respondent`, `SessionType`, and `EventNote` are processed further.
+
+```go
+#"Filtered Rows" = Table.SelectRows(#"Changed Type", each 
+    ([CaregiverID] = CaregiverID) and 
+    ([Respondent] = Respondent) and 
+    ([SessionType] = SessionType) and 
+    ([EventNote] = EventNote)
+)
+```
+
+##### 4. **Selecting Relevant Columns:**
+Unnecessary columns are removed, and only the relevant ones are retained. This reduces the data load and prepares the data for the next steps.
+
+```go
+#"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows", {
+    "InstanceID", "EventNote", "DateTimeStamp", "ResponseIDx", "
+
+```m
+"CaregiverID", "Respondent", "StudyPhase", "SessionType", "SessionCount", "TotalSessionTrials", 
+    "SessionBlockCount", "ConfMonitoring1", "ConfMonitoring2", "ConfMonitoring3", "ConfMonitoring4", 
+    "ConfMonitoring5", "ConfMonitoring6a_1", "ConfMonitoring6a_2", "ConfMonitoring6a_3", 
+    "ConfChildResponse", "ConfederateInteraction", "ConfTrialNote"
+})
+```
+Only the essential columns, including **ConfMonitoring** items and other metadata, are kept for further analysis.
+
+##### 5. **Adding Custom Columns for Average Calculations:**
+Custom columns are added to compute the averages for **T1**, **T2**, and **AllConfMonitoring** based on the relevant monitoring items.
+
+- **T1 Average**:
+   ```go
+   #"Added Custom" = Table.AddColumn(#"Removed Other Columns", "T1_Average", each 
+   ([ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]) / 5)
+   ```
+   This calculates the average of **ConfMonitoring1**, **ConfMonitoring2**, **ConfMonitoring6a_1**, **ConfMonitoring6a_2**, and **ConfMonitoring6a_3**.
+
+- **T2 Average**:
+   ```go
+   #"Added Custom1" = Table.AddColumn(#"Added Custom", "T2_Average", each 
+   ([ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5]) / 3)
+   ```
+   This calculates the average of **ConfMonitoring3**, **ConfMonitoring4**, and **ConfMonitoring5**.
+
+- **AllConfMonitoring Average**:
+   ```go
+   #"Added Custom2" = Table.AddColumn(#"Added Custom1", "AllConfMonitoring_Average", each 
+   ([ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5] + 
+   [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]) / 8)
+   ```
+   This calculates the average of all eight **ConfMonitoring** columns.
+
+
+#### **Summary:**
+
+This Power Query code:
+- **Defines parameters** for flexible filtering.
+- **Filters the data** based on `CaregiverID`, `Respondent`, `SessionType`, and `EventNote`.
+- **Selects relevant columns** for analysis.
+- **Calculates averages** for T1, T2, and all ConfMonitoring items.
+
+
+### Simulated Child Confederate Observations Power Query Script
+
+
+
+#### Script Overview:
+This Power Query script processes trial data for a study, specifically focusing on simulated caregiver trials. It groups trials into blocks of two and calculates scores for each block based on a set of monitoring variables (ConfMonitoring1 to ConfMonitoring6a_3). The script then computes averages for these monitoring scores (T1, T2, and overall averages). The processed data includes information such as session number, study phase, caregiver ID, and the timestamp of the second trial in each block.
+
+
+### Key Components and Process Steps:
+
+#### 1. **Parameter Definition:**
+The script starts by defining key parameters:
+- **CaregiverID**: Select the relevant participant ID (e.g., "Case1").
+- **Respondent**: Defines whether the trial is related to the confederate, IOA, or caregiver (e.g., "1_CONF").
+- **SessionType**: Specifies whether the trial involves a simulated child or an actual child (e.g., "1_SC").
+- **EventNote**: Defines the event note for filtering the trial (e.g., "3.0_Conf_TX_SC_TrialComplete").
+
+
+#### 2. **Data Loading and Type Consistency:**
+The raw data is loaded from the Excel workbook and the data types are converted for consistency, ensuring that numeric columns and date-time columns are in the correct format. This step ensures that all monitoring variables, timestamps, and key columns such as `CaregiverID`, `SessionCount`, and `DateTimeStamp` are appropriately typed.
+
+```go
+Source = Excel.CurrentWorkbook(){[Name="Table2"]}[Content],
+#"Changed Type" = Table.TransformColumnTypes(Source, { ... })
+```
+
+
+#### 3. **Filtering Data:**
+The script filters the dataset based on the defined parameters (CaregiverID, Respondent, SessionType, and EventNote). This step ensures that only the relevant data is processed for the specific trial type.
+
+```go
+#"Filtered Rows" = Table.SelectRows(#"Changed Type", each 
+    ([CaregiverID] = CaregiverID) and 
+    ([Respondent] = Respondent) and
+    ([EventNote] = EventNote) and
+    ([SessionType] = SessionType)
+)
+```
+
+
+#### 4. **Sorting and Indexing:**
+The data is sorted by `DateTimeStamp` to ensure that the trials are in chronological order. An index column is added to number the trials sequentially.
+
+```go
+#"Sorted Rows" = Table.Sort(#"Filtered Rows",{{"DateTimeStamp", Order.Ascending}}),
+#"Added Index" = Table.AddIndexColumn(#"Sorted Rows", "Index", 1, 1, Int64.Type),
+```
+
+
+#### 5. **Grouping Trials into Blocks:**
+Trials are grouped into blocks of two based on the index, where every two trials are placed into a unique `TrialBlockGroup`. This ensures that each block of trials is treated as a unit for scoring purposes.
+
+```go
+#"Added TrialBlockGroup" = Table.AddColumn(#"Added Index", "TrialBlockGroup", each Number.IntegerDivide([Index] - 1, 2) + 1),
+```
+
+
+#### 6. **Computing Trial Block Scores:**
+For each block, the script computes scores for each `ConfMonitoring` variable. A score of `1` is assigned if both trials in the block have a value of `1` for a given monitoring variable, otherwise, the score is `0`. If a trial is missing, the score defaults to `0`.
+
+Additional information such as `SessionNumber`, `StudyPhase`, `CaregiverID`, and `DateTimeStamp` (from Trial 2) is also included in the output.
+
+```go
+#"Added Custom" = Table.AddColumn(#"GroupedTBRows", "TrialBlockScore", each
+    let 
+        TrialRows = [ComputedTrialBlockSubTable],
+        Trial1 = if Table.RowCount(TrialRows) > 0 then TrialRows{0} else null,
+        Trial2 = if Table.RowCount(TrialRows) > 1 then TrialRows{1} else null,
+
+        // Compute scores for ConfMonitoring1 - ConfMonitoring6a_3
+        TB_ConfMonitoring1 = if (Trial1[ConfMonitoring1] = 1 and Trial2[ConfMonitoring1] = 1) then 1 else 0,
+        ...
+        TB_ConfMonitoring6a_3 = if (Trial1[ConfMonitoring6a_3] = 1 and Trial2[ConfMonitoring6a_3] = 1) then 1 else 0,
+
+        // Extract additional fields from Trial2
+        SessionNumber = if Trial2 <> null then Trial2[SessionCount] else null,
+        StudyPhase = if Trial2 <> null then Trial2[StudyPhase] else null,
+        CaregiverID = if Trial2 <> null then Trial2[CaregiverID] else null,
+        DateTimeStamp = if Trial2 <> null then Trial2[DateTimeStamp] else null
+    in
+        [
+            SessionNumber = SessionNumber,
+            StudyPhase = StudyPhase,
+            CaregiverID = CaregiverID,
+            DateTimeStamp = DateTimeStamp,
+            TB_ConfMonitoring1 = TB_ConfMonitoring1,
+            TB_ConfMonitoring2 = TB_ConfMonitoring2,
+            ...
+            TB_ConfMonitoring6a_3 = TB_ConfMonitoring6a_3
+        ]
+),
+```
+
+
+#### 7. **Expanding and Cleaning Data:**
+The computed trial block scores and additional fields from Trial 2 are expanded into separate columns. The intermediate column (`ComputedTrialBlockSubTable`) is removed after the expansion to keep the table clean.
+
+```go
+#"Expanded TrialBlockScore" = Table.ExpandRecordColumn(#"Added Custom", "TrialBlockScore", { ... }),
+#"Removed Columns" = Table.RemoveColumns(#"Expanded TrialBlockScore", {"ComputedTrialBlockSubTable"}),
+```
+
+---
+
+#### 8. **Calculating Averages:**
+The script calculates three averages:
+- **T1_Average**: The average score for `TB_ConfMonitoring1`, `TB_ConfMonitoring2`, `TB_ConfMonitoring6a_1`, `TB_ConfMonitoring6a_2`, and `TB_ConfMonitoring6a_3`.
+- **T2_Average**: The average score for `TB_ConfMonitoring3`, `TB_ConfMonitoring4`, and `TB_ConfMonitoring5`.
+- **AllConfMonitoring_Average**: The average score for all `TB_ConfMonitoring` variables.
+
+```go
+#"Added T1_Average" = Table.AddColumn(#"Removed Columns", "T1_Average", each 
+    ([TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3]) / 5
+),
+#"Added T2_Average" = Table.AddColumn(#"Added T1_Average", "T2_Average", each 
+    ([TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5]) / 3
+),
+#"Added AllConfMonitoring_Average" = Table.AddColumn(#"Added T2_Average", "AllConfMonitoring_Average", each 
+    ([TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5] + 
+    [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3]) / 8
+)
+```
+
+
+
+### **Version 2 (V2) Update: Counts Calculation**
+
+In **Version 2 (V2)** of the data transfer process, the script was updated to include additional **count-based calculations** for each monitoring group. These counts represent the sum of relevant monitoring values for each trial block group, providing a more detailed breakdown of the data. The following updates were made:
+
+#### **1. Addition of Count Columns**:
+   - **T1_Count**: A new column was added to calculate the sum of `ConfMonitoring1`, `ConfMonitoring2`, `ConfMonitoring6a_1`, `ConfMonitoring6a_2`, and `ConfMonitoring6a_3`. This column represents the **T1 Count** for each trial block group.
+   
+   - **T2_Count**: A column was added to calculate the sum of `ConfMonitoring3`, `ConfMonitoring4`, and `ConfMonitoring5`, representing the **T2 Count** for each trial block group.
+   
+   - **AllConfMonitoring_Count**: This column sums all `ConfMonitoring` variables (1 through 6a_3), providing a total **AllConfMonitoring Count** for each trial block group.
+
+#### **2. Purpose of the Count Columns**:
+   - These count columns provide insight into the total number of monitoring events across the trial blocks for each phase and session type.
+   - By including these counts, we can now track both the **average** and the **sum** of monitoring events, offering more robust data for analysis in Prism.
+
+#### **3. Data Transfer**:
+   - The updated count columns were included in the final dataset transferred to **GraphPad Prism**, following the same procedure used for transferring average values.
+   - These new columns were transferred into the appropriate Y-axis groups in Prism to enable visual comparisons and detailed analyses of monitoring counts across different phases and sessions.
+
+#### **4. Query Code Update**:
+   - The Power Query script was modified to include the count calculations for each monitoring group, ensuring that the count columns were correctly computed and added to the final dataset.
+   - The script was tested to validate the accuracy of the count calculations and to ensure that the data was correctly processed for visualization in Prism.
+
+   ```go
+
+       // Add a custom column for T1 Count (TB_ConfMonitoring1, 2, 6a_1, 6a_2, 6a_3)
+    #"Added T1_Count" = Table.AddColumn(#"Removed Columns", "T1_Count", each 
+        ([TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3])
+    ),
+
+    // Add a custom column for T2 Count (TB_ConfMonitoring3, 4, 5)
+    #"Added T2_Count" = Table.AddColumn(#"Added T1_Count", "T2_Count", each 
+        ([TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5])
+    ),
+
+    // Add a custom column for AllConfMonitoring Count (all TB_ConfMonitoring columns)
+    #"Added AllConfMonitoring_Count" = Table.AddColumn(#"Added T2_Count", "AllConfMonitoring_Count", each 
+        ([TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5] + 
+        [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3])
+    ),
+
+    ```
+
+### Final Output:
+The final table contains:
+- **SessionNumber, StudyPhase, CaregiverID, DateTimeStamp** (from Trial 2)
+- **TB_ConfMonitoring1 - TB_ConfMonitoring6a_3**: Scores for each monitoring variable.
+- **T1_Average, T2_Average, AllConfMonitoring_Average, T1_Count, T2_Count, AllConfMonitoring_Count**: Calculated averages and counts for the monitoring variables.
+
+
+### Conclusion:
+This script provides a clean, processed dataset that groups trials into blocks, computes monitoring scores, and calculates averages. It ensures that each trial block is scored based on the performance of both trials in the block and includes additional relevant metadata for further analysis.
+
+## **Prism Design Considerations**
+
+This section outlines the design considerations for setting up data for GraphPad Prism using trial blocks as the X-axis for individual participants. The goal is to visualize different phases of a study, such as baseline, training, and return to baseline, for a single participant, while allowing flexibility in the structure for trials that do not share the same X values across phases. Information is summarized from Prism Manual.
+
+### **Table Format: XY Data in GraphPad Prism**
+
+In GraphPad Prism, an **XY data table** is structured so that each point is defined by an **X** and **Y** value. The table can accommodate different phases or data series, even if they do not share the same X values. This format is ideal for analyzing time-based data or trial blocks across different phases for a participant.
+
+#### **Key Characteristics of an XY Table:**
+- **X Column**: Represents the independent variable (in this case, trial blocks).
+- **Y Columns**: Represent the dependent variable (EDC performance). You can have multiple Y columns for each phase of the study.
+- **Staggered Data**: If trials within a phase do not start at the same X value, you can stagger the data entry by leaving rows blank and starting the data at the correct X point for each phase.
+
+
+#### **Entering Multiple Sets of Data That Don’t Share X Values**
+
+ Each XY data table in Prism has a single X column for up to 104 sets of Y values (i.e., phases or variables). If different phases or data series do not share the same X values (e.g., if trial blocks begin at different points within the study), you can handle this by **staggering the data entry**. This means leaving blank rows where needed and only entering values where the X value corresponds to the start of that phase.
+
+#### **Best Practice for Staggering Data**:
+1. **Start Entering Data at the Correct X Value**: You don’t need to start entering data in the first row. If one phase begins at a later trial block, simply start that phase’s data in a later row, leaving previous X values blank.
+2. **Separate Phases into Different Y Columns**: For each phase (e.g., Baseline, Training 1, Training 2), use separate Y columns to keep the data organized.
+
+
+## **Example Table Structure for a Single Participant**
+
+For a participant, the data can be structured as follows:
+
+| X (Trial Block) | Baseline (Y1) | Training 1 (Y2) | Training 2 (Y3) | Maintenance (Y4) |
+|-----------------|---------------|-----------------|-----------------|------------------|
+| 1               | 85            |                 |                 |                  |
+| 2               | 87            |                 |                 |                  |
+| 3               | 89            |                 |                 |                  |
+| 4               |               | 70              |                 |                  |
+| 5               |               | 72              |                 |                  |
+| 6               |               | 75              |                 |                  |
+| 7               |               |                 | 80              |                  |
+| 8               |               |                 | 83              |                  |
+| 9               |               |                 | 85              |                  |
+| 10              |               |                 |                 | 88               |
+| 11              |               |                 |                 | 90               |
+
+#### **Explanation**:
+- **X (Trial Block)**: Represents the trial block number.
+- **Baseline (Y1)**: This participant's data during the baseline phase.
+- **Training 1 (Y2)**: Data for the first training phase, which starts later than the baseline.
+- **Training 2 (Y3)**: Data for the second training phase, starting even later.
+- **Maintenance (Y4)**: Data for the maintenance phase, which begins after the training phases.
+
+
+#### **Considerations for Graphing in Prism**:
+- **Error Bars**: If you have replicate values for each trial block, Prism allows you to add error bars by using subcolumns. For each replicate, you can enter the corresponding Y value in the subcolumns.
+- **Annotations**: Use Prism’s annotation feature to mark key points, such as the transition from one phase to another or significant changes in performance.
+- **Handling Missing Data**: Blank cells will be automatically ignored by Prism, and no lines will be drawn through them, allowing for clear representation of the different start points of phases.
+
+
+
+### Documentation for Data Transfer and Plotting in GraphPad Prism
+
+
+
+#### **Steps for Data Transfer and Plotting in GraphPad Prism**:
+
+##### 1. **Y-Axis Group Labels in Prism**:
+   - Each Y-axis group within **Prism** was named according to the study phase and session type.
+   - **Example Y-axis group labels**:
+     - `BL_AC` (Group A)
+     - `BL_SC` (Group B)
+     - `T1_SC` (Group F)
+     - `T2_SC_1` (Group H)
+     - `RTB_AC` (Group N)
+
+##### 2. **Merging Data Tables**:
+   - The **AC_ALL_Case1_CONF_X_V1** table (15 entries) was merged into the **ALL_ALL_Case1_CONF_TrialBlockScoring_v1** table (41 entries).
+   - This resulted in a combined dataset with **56 entries**. The `TrialBlockGroup` column was updated as follows:
+     - **X.5**: Assigned to baseline entries.
+     - **X.25, X.5, X.75**: Assigned to the remaining AC sets (entries from the merged table).
+
+   This merged dataset was then transferred to GraphPad Prism for further visualization.
+
+##### 3. **Transferring Data Series to Prism**:
+
+1. **Starting with `AllConfMonitoring_Average` Values**:
+   - The first step was to copy the **`AllConfMonitoring_Average`** values from the combined dataset in Excel and paste them into Prism.
+   - Initially, the values were pasted into the **Group A (`BL_AC`)** column within Prism.
+
+2. **Cut and Paste to the Correct Y-Axis Groups**:
+   - After pasting all the `AllConfMonitoring_Average` values into Group A, each subset of data was moved (cut and pasted) to the correct Y-axis group based on the session and phase.
+   - For instance:
+     - **Group A** (`BL_AC`) received the corresponding baseline values.
+     - **Group B** (`BL_SC`) received its respective values.
+     - **Group C** (`BL_AC`) was populated, and so on for each group.
+
+   This ensured that the correct Y-axis group contained the appropriate data for each phase or session.
+
+##### 4. **Creating Data Tables for Additional Series (`T1_Average`, `T2_Average`)**:
+   - Once the `AllConfMonitoring_Average` data was organized in the correct Y-axis groups, the process was repeated for other series.
+   - **For `T1_Average` and `T2_Average`**:
+     - Separate data tables were created in Prism for the `T1_Average` and `T2_Average` series.
+     - These values were copied from Excel and pasted into the appropriate Y-axis groups for each series.
+
+   This resulted in three separate Prism data tables for:
+   - **ALL_ALL_Case1_CONF_TrialBlockScoring_v1** (56 entries after the merge)
+   - **ALL_T1_Case1_CONF__v1**
+   - **ALL_T2_Case1_CONF__v1**
+
+##### 5. **Verifying Data Alignment**:
+   After each series was transferred to Prism, the data was cross-referenced for accuracy:
+   
+   1. **Check Row Configuration**:
+      - After moving the data series into their corresponding Y-axis groups, the row configuration was verified to ensure that each row of data was correctly aligned with the corresponding Y-axis group.
+      - This confirmed that the data points in each series were properly aligned between Excel and Prism.
+
+   2. **Cross-Reference Check**:
+      - For each series (`AllConfMonitoring_Average`, `T1_Average`, `T2_Average`), five random data points were selected and visually compared between the Excel source and Prism to ensure accuracy in the transfer.
+      - This step provided assurance that the row order and data values matched perfectly.
+
+#### **Conclusion**:
+By carefully merging the **AC_ALL_Case1_CONF_X_V1** and **ALL_ALL_Case1_CONF_TrialBlockScoring_v1** tables into a combined set of 56 entries, and transferring each data series one at a time (starting with `AllConfMonitoring_Average`, followed by `T1_Average` and `T2_Average`), and assigning them to their corresponding Y-axis groups in Prism, the integrity and alignment of the data were maintained. This process ensured that the data was structured and ready for accurate visualization in GraphPad Prism.

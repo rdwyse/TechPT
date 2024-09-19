@@ -1921,7 +1921,12 @@ with open(output_file, "w", newline="") as file:
 print(f"Data exported to {output_file} successfully.")
 
 ```
+## Bugs and Issues
 
+Training trial directon recording.
+Message prompt for confederate end of trial says SC regardless of sessiontype.
+Display of feedback and verbal prompting is not recorded.
+Loop and merge 100 loops, likely creating an issue with the expansive rows in the qualtrics data table.
 
 
 ## Depreciated Features
