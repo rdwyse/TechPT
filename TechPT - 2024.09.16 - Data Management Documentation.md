@@ -3,6 +3,10 @@ TechPT Data Management Documentation
 
 # Table of Contents
 
+Here's an updated **Table of Contents** reflecting the sections of the **TechPT Data Management Documentation** you provided, including the detailed steps, actions, and processes documented for the project:
+
+# Table of Contents
+
 1. [Introduction to the Data Management Documentation](#introduction-to-the-data-management-documentation)
 2. [Data Cleanup Process Documentation](#data-cleanup-process-documentation)
     - [Date: 2024.09.13](#date-20240913)
@@ -28,7 +32,6 @@ TechPT Data Management Documentation
         - [Correcting Study Phase and CaregiverID Based on Research and Session Notes](#correcting-study-phase-and-caregiverid-based-on-research-and-session-notes)
         - [Mastery Criteria Review Based on 8029hmvgjh Note](#mastery-criteria-review-based-on-8029hmvgjh-note)
         - [Missing TrialDirection Recordings During Training Sessions](#missing-trialdirection-recordings-during-training-sessions)
-
 3. [Table Naming Convention](#table-naming-convention)
     - [Components Breakdown](#components-breakdown)
     - [Example Table Names](#example-table-names)
@@ -40,7 +43,30 @@ TechPT Data Management Documentation
     - [Broader Aggregated Examples](#broader-aggregated-examples)
         1. [All Actual Child Trials for All Cases Across All Phases](#all-actual-child-trials-for-all-cases-across-all-phases)
         2. [All Records for Case 1 Across All Phases and Respondents](#all-records-for-case-1-across-all-phases-and-respondents)
-
+4. [Data Preparation](#data-preparation)
+    - [Workflow Summary](#workflow-summary)
+    - [Data Preparation in Excel for Confederate Monitoring Analysis](#data-preparation-in-excel-for-confederate-monitoring-analysis)
+        - [Introduction](#introduction)
+        - [Loading the Master Table](#loading-the-master-table)
+        - [Using Power Query for Data Filtering and Transformation](#using-power-query-for-data-filtering-and-transformation)
+        - [Processing Simulated Child (SC) Sessions](#processing-simulated-child-sc-sessions)
+        - [Processing Actual Child (AC) Sessions](#processing-actual-child-ac-sessions)
+        - [Combining SC and AC Data](#combining-sc-and-ac-data)
+        - [Conclusion](#conclusion)
+5. [Prism Design Considerations](#prism-design-considerations)
+    - [Table Format: XY Data in GraphPad Prism](#table-format-xy-data-in-graphpad-prism)
+        1. [Entering Multiple Sets of Data That Don’t Share X Values](#entering-multiple-sets-of-data-that-dont-share-x-values)
+        2. [Example Table Structure for a Single Participant](#example-table-structure-for-a-single-participant)
+6. [Documentation for Data Transfer and Plotting in GraphPad Prism](#documentation-for-data-transfer-and-plotting-in-graphpad-prism)
+    1. [Steps for Manual Data Transfer and Plotting in GraphPad Prism](#steps-for-manual-data-transfer-and-plotting-in-graphpad-prism)
+        - [Merging Data Tables](#merging-data-tables)
+        - [Creating Data Tables for Additional Series](#creating-data-tables-for-additional-series)
+        - [Verifying Data Alignment](#verifying-data-alignment)
+7. [Steps for Python Script to Automate Data Transfer to Prism](#steps-for-python-script-to-automate-data-transfer-to-prism)
+    - [Introduction](#introduction)
+    - [Processing Session Data](#processing-session-data)
+    - [Main Loop: Generating Columns for Each Session](#main-loop-generating-columns-for-each-session)
+    - [Output Formatting](#output-formatting)
 
 
 # Introduction to the Data Management Documentation
@@ -406,404 +432,336 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
    - `AC_ALL_Case1_AllRespondents_AllTrials_V1`: Aggregated table of all records for **Case 1**, across all phases and respondents, version 1.
 
  
-# Data Preperation in Excel
 
-## Outline for Data Preparation in Excel
+## Data Preparation in Excel for Confederate Monitoring Analysis
 
 ### 1. **Introduction**
-   - Brief overview of the purpose of data preparation in Excel.
-   - Explain the goal: to clean, filter, and organize data for visualization in GraphPad Prism, using Excel and Power Query.
+   - This sections outlines the steps to clean, filter, and organize  Monitoring data for analysis and visualization in GraphPad Prism. 
+   - The goal is to process data from both Simulated Child (SC) and Actual Child (AC) sessions, calculating trial block scores, averages, and counts for each session.
 
 ### 2. **Loading the Master Table**
-   - **Step 1**: Open Excel and import the master table.
-     - Navigate to the **Data** tab.
-     - Select **Get Data** → **From File** → **From CSV** to load the master table into Excel.
-   - **Step 2**: Ensure that the table is formatted as a proper Excel table.
-     - Click on the table and select **Format as Table** to enable easier filtering and querying.
+   - **Step 1**: Import the master table into Excel from a CSV file.
+     - Navigate to the **Data** tab in Excel.
+     - Select **Get Data** → **From File** → **From CSV** and choose the master table.
+   - **Step 2**: Format the imported data as a table in Excel.
+     - Select the table and choose **Format as Table** to enable easier filtering and querying.
 
-### 3. **Using Power Query for Data Filtering**
+### 3. **Using Power Query for Data Filtering and Transformation**
    - **Step 1**: Load the master table into Power Query.
-     - Go to the **Data** tab and click **Get Data** → **From Table/Range** to open the table in Power Query: use **master table range A1:BB786**
-   - **Step 2**: Apply filters to the dataset.
-     - Filter based on specific variables like **CaseID** (e.g., **Case 1**), **SessionType** (e.g., **AC** for Actual Child trials), and **Respondent** (e.g., **CONF** for Confederate).
-     - Example of filtering: 
-       - Filter for **Case 1**.
-       - Filter for **SessionType = AC**.
-       - Filter for **Respondent = CONF**.
-   - **Step 3**: Select relevant columns.
-     - Use `Table.SelectColumns` to keep only necessary columns (e.g., **InstanceID**, **CaregiverID**, **ConfMonitoring1-6**, etc.).
-     - This step ensures that only essential data is exported for further analysis.
+     - Go to the **Data** tab in Excel and click **Get Data** → **From Table/Range** to open the table in Power Query.
+   - **Step 2**: Define key parameters in Power Query: ALL_ALL_Case1_CONF_TrialBlockScoring_v1
+     - Parameters for filtering the data dynamically are set at the start of the script. These include `CaregiverID`, `Respondent`, `SessionType`, and `EventNote`.
+   
+   ```go
+   let
+       CaregiverID = "Case1",  // Parameter: Case1, Case2, Case3
+       Respondent = "1_CONF",  // Parameter: 1_CONF, 2_IOA, CARE
+       EventNote_Prefix = "3.0_Conf",  // Match the first 8 characters of EventNote
+       SessionType_SC = "1_SC",  // Simulated Child session type
+       SessionType_AC = "0_AC"   // Actual Child session type
+   ```
 
-### 4. **Loading Data from Power Query Back to Excel**
-   - **Step 1**: Load the transformed query data back into Excel.
-     - In Power Query, select **Close & Load** → **Load to** to export the query results as a new table in Excel.
-   - **Step 2**: Save the query results in a separate worksheet for easy reference.
+   ### 4. **Processing Simulated Child (SC) Sessions**
 
-    - **Change the Query to Load as a Table**
-      - If the query is currently a Connection Only query (meaning it's not loaded to a worksheet), you can modify its settings:
-      - Go to Data > Queries & Connections.
-      - Right-click your query and choose Load To....
-      - In the Import Data dialog box that appears, choose Table and select a worksheet where you'd like the data to load.
+   #### **Filtering and Sorting SC Sessions**
+   - **Step 1**: Filter for SC sessions based on the parameters.
+     - The script filters rows that match the selected `CaregiverID`, `Respondent`, `EventNote_Prefix`, and **Simulated Child** sessions.
 
-### Actual Child Confederate Monitoring Power Query Code with Dynamic Parameters
+     ```go
+     #"Filtered Rows_SC" = Table.SelectRows(#"Changed Type", each 
+         ([CaregiverID] = CaregiverID) and 
+         ([Respondent] = Respondent) and
+         (Text.Start([EventNote], 8) = EventNote_Prefix) and
+         ([SessionType] = SessionType_SC)
+     )
+     ```
+   - **Step 2**: Sort SC sessions chronologically by `DateTimeStamp`.
+     ```go
+     #"Sorted Rows_SC" = Table.Sort(#"Filtered Rows_SC", {{"DateTimeStamp", Order.Ascending}})
+     ```
 
+   #### **Creating Trial Blocks for SC Sessions**
+   - **Step 3**: Add an index column to uniquely identify each trial.
+     ```go
+     #"Added Index_SC" = Table.AddIndexColumn(#"Sorted Rows_SC", "Index", 1, 1, Int64.Type)
+     ```
+   - **Step 4**: Create `TrialBlockGroup` by grouping trials into pairs.
+     - Each pair of trials is treated as a block, and trial block scores will be computed for each pair.
+     ```go
+     #"Added TrialBlockGroup_SC" = Table.AddColumn(#"Added Index_SC", "TrialBlockGroup", each Number.IntegerDivide([Index] - 1, 2) + 1)
+     ```
 
-This Power Query code is designed to extract, filter, and compute averages based on **ConfMonitoring** data. It leverages parameters for flexibility, allowing dynamic filtering based on key variables like `CaregiverID`, `Respondent`, `SessionType`, and `EventNote`. The query processes and computes averages for different sets of monitoring data, and it is structured for reusability.
+   #### **Computing Trial Block Scores for SC**
+   - **Step 5**: Calculate the trial block scores for SC sessions based on Confederate Monitoring variables (**ConfMonitoring1-6a_3**).
+     - For each trial block, a score of `1` is assigned if both trials have a value of `1` for a given variable, otherwise, the score is `0`.
 
-#### **Overview:**
-The query dynamically filters rows from the dataset based on parameters and computes custom averages for **T1**, **T2**, and **AllConfMonitoring** sets of monitoring columns. The query uses the following steps:
-1. **Define Parameters**: Provides flexibility for different datasets.
-2. **Data Transformation**: Adjusts data types for consistency.
-3. **Filtering Rows**: Filters based on the defined parameters.
-4. **Column Selection**: Retains only the necessary columns.
-5. **Custom Calculations**: Calculates averages for T1, T2, and all **ConfMonitoring** columns.
+     ```go
+     #"Added Custom_SC" = Table.AddColumn(#"GroupedTBRows_SC", "TrialBlockScore_SC", each
+         let
+             TrialRows = [ComputedTrialBlockSubTable],
+             Trial1 = if Table.RowCount(TrialRows) > 0 then TrialRows{0} else null,
+             Trial2 = if Table.RowCount(TrialRows) > 1 then TrialRows{1} else null,
+             // Extract fields from Trial2
+             SessionNumber = if Trial2 <> null then Trial2[SessionCount] else null,
+             StudyPhase = if Trial2 <> null then Trial2[StudyPhase] else null,
+             TB_ConfMonitoring1 = if (Trial1[ConfMonitoring1] = 1 and Trial2[ConfMonitoring1] = 1) then 1 else 0,
+             TB_ConfMonitoring2 = if (Trial1[ConfMonitoring2] = 1 and Trial2[ConfMonitoring2] = 1) then 1 else 0,
+             // Continue for all other ConfMonitoring variables
+         in
+         [
+             SessionNumber = SessionNumber,
+             StudyPhase = StudyPhase,
+             TB_ConfMonitoring1 = TB_ConfMonitoring1,
+             TB_ConfMonitoring2 = TB_ConfMonitoring2
+             // Include other ConfMonitoring variables
+         ]
+     )
+     ```
 
-#### Example Power Query Code:
+   #### **Calculating Averages and Counts for SC**
+   - **Step 6**: Compute averages and counts for Confederate Monitoring variables across all trial blocks.
+     - **T1** includes variables 1, 2, and 6a_1-6a_3.
+     - **T2** includes variables 3, 4, and 5.
+
+     ```go
+     #"Added SC_T1_Count" = Table.AddColumn(#"Expanded TrialBlockScore_SC", "SC_T1_Count", each 
+         [TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3]
+     ),
+     #"Added SC_T1_Average" = Table.AddColumn(#"Added SC_T1_Count", "SC_T1_Average", each 
+         [SC_T1_Count] / 5
+     ),
+     #"Added SC_T2_Average" = Table.AddColumn(#"Added SC_T1_Average", "SC_T2_Average", each 
+         [SC_T2_Count] / 3
+     ),
+     ```
+
+### 5. **Processing Actual Child (AC) Sessions**
+
+#### **Filtering and Processing AC Sessions**
+   - **Step 1**: Filter for AC sessions based on the selected parameters.
+     ```go
+     #"Filtered Rows_AC" = Table.SelectRows(#"Changed Type", each 
+         ([CaregiverID] = CaregiverID) and
+         ([Respondent] = Respondent) and
+         (Text.Start([EventNote], 8) = EventNote_Prefix) and
+         ([SessionType] = SessionType_AC)
+     )
+     ```
+   - **Step 2**: Adjust the columns for AC trials, ensuring they align with SC structure.
+     ```go
+     #"Selected Columns_AC" = Table.SelectColumns(#"Filtered Rows_AC", {"DateTimeStamp", "CaregiverID", "SessionCount", "StudyPhase", 
+         "ConfMonitoring1", "ConfMonitoring2", "ConfMonitoring3", "ConfMonitoring4", "ConfMonitoring5", 
+         "ConfMonitoring6a_1", "ConfMonitoring6a_2", "ConfMonitoring6a_3"}),
+     #"Renamed Columns_AC" = Table.RenameColumns(#"Selected Columns_AC", {{"SessionCount", "SessionNumber"}})
+     ```
+
+#### **Calculating Averages and Counts for AC**
+   - **Step 3**: Compute averages and counts for Confederate Monitoring variables for the AC trials, similar to the SC calculations.
+     ```go
+     #"Added AC_T1_Count" = Table.AddColumn(#"Added TrialBlockGroup_AC", "AC_T1_Count", each 
+         [ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]
+     ),
+     #"Added AC_T1_Average" = Table.AddColumn(#"Added AC_T1_Count", "AC_T1_Average", each 
+         [AC_T1_Count] / 5
+     ),
+     #"Added AC_AllConfMonitoring_Average" = Table.AddColumn(#"Added AC_T1_Average", "AC_AllConfMonitoring_Average", each 
+         [AC_AllConfMonitoring_Count] / 8
+     )
+     ```
+
+### 6. **Combining SC and AC Data**
+
+   - **Step 1**: Ensure the SC and AC tables have the same columns and structure.
+     - If a column is missing in either table, it's added with `null` values.
+     ```go
+     #"Adjusted SC Table" = Table.SelectColumns(#"Added SC_AllConfMonitoring_Average", AllColumns, MissingField.UseNull),
+     #"Adjusted AC Table" = Table.SelectColumns(#"Added AC_AllConfMonitoring_Average", AllColumns, MissingField.UseNull)
+     ```
+
+   - **Step 2**: Combine the SC and AC tables into a single dataset.
+     ```go
+     #"Combined AC_SC Results" = Table.Combine({#"Adjusted SC Table",
+
+### `ALL_ALL_Case1_CONF_TrialBlockScoring_v1` Power Query Code:
 
 
 
 ```go
 let
-	// Define parameters
-	CaregiverID = "Case1",        // Parameter: Case1, Case2, Case3, Case4
-	Respondent = "1_CONF",        // Parameter: 1_CONF, 2_IOA, CARE (Confederate, IOA, Caregiver)
-	SessionType = "0_AC",         // Parameter: 0_AC (Actual Child), 1_SC (Simulated Child)
-	EventNote = "3.0_Conf_TX_SC_TrialComplete",  // Parameter: 3.0_Conf_TX_SC_TrialComplete, 2.0_Conf_TX_BL_Start, etc.
+    // Define parameters (Case1, Case2, Case3)
+    CaregiverID = "Case1",  // Select the relevant participant ID
+    Respondent = "1_CONF",  // Parameter: 1_CONF, 2_IOA, CARE (Confederate, IOA, Caregiver)
 
+    EventNote_Prefix = "3.0_Conf",  // Match the first 8 characters of EventNote
+    SessionType_SC = "1_SC",   // Set session type for Simulated Child
+    SessionType_AC = "0_AC",   // Set session type for Actual Child
 
-    // Source data from Excel table
+    // Load the data from Excel table
     Source = Excel.CurrentWorkbook(){[Name="Table2"]}[Content],
 
-    // Change data types for consistency
+    // Ensure consistent data types
     #"Changed Type" = Table.TransformColumnTypes(Source, {
         {"InstanceID", type text}, {"EventNote", type text}, {"DateTimeStamp", type datetimezone}, 
         {"ResponseIDx", type text}, {"CaregiverID", type text}, {"Respondent", type text}, 
         {"StudyPhase", type text}, {"SessionType", type text}, {"SessionCount", Int64.Type}, 
-        {"TotalSessionTrials", Int64.Type}, {"SessionBlockCount", type number}, {"TrialDirection", type text}, 
-        {"CareDirStart", type datetimezone}, {"CareDirEnd", type datetimezone}, 
-        {"SelfMonitoring1", Int64.Type}, {"SelfMonitoring2", Int64.Type}, {"SelfMonitoring3", Int64.Type}, 
-        {"SelfMonitoring4", Int64.Type}, {"SelfMonitoring5", Int64.Type}, {"SelfMonitoring6", Int64.Type}, 
-        {"SelfMonitoring6a_1", Int64.Type}, {"SelfMonitoring6a_2", Int64.Type}, {"SelfMonitoring6a_3", Int64.Type}, 
-        {"ConfResponse", type text}, {"ConfMonitoring1", Int64.Type}, {"ConfMonitoring2", Int64.Type}, 
-        {"ConfMonitoring3", Int64.Type}, {"ConfMonitoring4", Int64.Type}, {"ConfMonitoring5", Int64.Type}, 
-        {"ConfMonitoring6", Int64.Type}, {"ConfMonitoring6a_1", Int64.Type}, {"ConfMonitoring6a_2", Int64.Type}, 
-        {"ConfMonitoring6a_3", Int64.Type}, {"ConfChildResponse", type text}, {"ConfederateInteraction", Int64.Type}, 
-        {"ConfTrialNote", type text}, {"ConfSessionNote", type text}, {"IOAVideoName", type any}, 
-        {"IOADirStart", type any}, {"IOADirEnd", type any}, {"IOAMonitoring1", type any}, 
-        {"IOAMonitoring2", type any}, {"IOAMonitoring3", type any}, {"IOAMonitoring4", type any}, 
-        {"IOAMonitoring5", type any}, {"IOAMonitoring6", type any}, {"IOAMonitoring6a_1", type any}, 
-        {"IOAMonitoring6a_2", type any}, {"IOAMonitoring6a_3", type any}, {"IOAResponse", type any}, 
-        {"IOAChildResponse", type any}, {"IOAConfederateInteraction", type any}, {"IOATrialNote", type any}, 
-        {"IOASessionNote", type any}}),
-
-    // Apply filtering for CaregiverID, Respondent, SessionType, and EventNote using parameters
-    #"Filtered Rows" = Table.SelectRows(#"Changed Type", each 
-        ([CaregiverID] = CaregiverID) and 
-        ([Respondent] = Respondent) and 
-        ([SessionType] = SessionType) and 
-        ([EventNote] = EventNote)
-    ),
-
-    // Remove unnecessary columns, keeping only relevant ones
-    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows", {
-        "InstanceID", "EventNote", "DateTimeStamp", "ResponseIDx", "CaregiverID", "Respondent", 
-        "StudyPhase", "SessionType", "SessionCount", "TotalSessionTrials", "SessionBlockCount", 
-        "ConfMonitoring1", "ConfMonitoring2", "ConfMonitoring3", "ConfMonitoring4", "ConfMonitoring5", 
-        "ConfMonitoring6a_1", "ConfMonitoring6a_2", "ConfMonitoring6a_3", "ConfChildResponse", 
-        "ConfederateInteraction", "ConfTrialNote"
+        {"ConfMonitoring1", Int64.Type}, {"ConfMonitoring2", Int64.Type}, {"ConfMonitoring3", Int64.Type}, 
+        {"ConfMonitoring4", Int64.Type}, {"ConfMonitoring5", Int64.Type}, {"ConfMonitoring6a_1", Int64.Type}, 
+        {"ConfMonitoring6a_2", Int64.Type}, {"ConfMonitoring6a_3", Int64.Type}
     }),
 
-    // Add a custom column for T1 average (ConfMonitoring1, 2, 6a_1, 6a_2, 6a_3)
-    #"Added Custom" = Table.AddColumn(#"Removed Other Columns", "T1_Average", each 
-        ([ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]) / 5
+    // 1. Handle SC Trials
+
+    // Filter for SC sessions
+    #"Filtered Rows_SC" = Table.SelectRows(#"Changed Type", each 
+        ([CaregiverID] = CaregiverID) and 
+        ([Respondent] = Respondent) and
+        (Text.Start([EventNote], 8) = EventNote_Prefix) and  // Match the first 8 characters of EventNote
+        ([SessionType] = SessionType_SC)
     ),
 
-    // Add a custom column for T2 average (ConfMonitoring3, 4, 5)
-    #"Added Custom1" = Table.AddColumn(#"Added Custom", "T2_Average", each 
-        ([ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5]) / 3
-    ),
+    // Sort the table by DateTimeStamp to ensure the rows are in chronological order
+    #"Sorted Rows_SC" = Table.Sort(#"Filtered Rows_SC", {{"DateTimeStamp", Order.Ascending}}),
 
-    // Add a custom column for AllConfMonitoring average (all ConfMonitoring columns)
-    #"Added Custom2" = Table.AddColumn(#"Added Custom1", "AllConfMonitoring_Average", each 
-        ([ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5] + 
-        [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]) / 8
-    )
+    // Add an index column starting from 1
+    #"Added Index_SC" = Table.AddIndexColumn(#"Sorted Rows_SC", "Index", 1, 1, Int64.Type),
 
-in
-    #"Added Custom2"
-```
+    // Create TrialBlockGroup column by dividing the Index by 2 and adding 1 (pairs of two trials per group)
+    #"Added TrialBlockGroup_SC" = Table.AddColumn(#"Added Index_SC", "TrialBlockGroup", each Number.IntegerDivide([Index] - 1, 2) + 1),
 
-#### **Steps Breakdown:**
+    // Group by TrialBlockGroup (which uniquely identifies each block of two trials)
+    #"GroupedTBRows_SC" = Table.Group(#"Added TrialBlockGroup_SC", {"TrialBlockGroup"}, {
+        {"ComputedTrialBlockSubTable", each _, type table}
+    }),
 
-##### 1. **Defining Parameters:**
-The following parameters are defined at the beginning of the query to allow for dynamic filtering. These parameters can be changed at runtime to accommodate different data sets:
+    // Compute the trial block scores for SC ConfMonitoring variables and extract additional fields from Trial 2
+    #"Added Custom_SC" = Table.AddColumn(#"GroupedTBRows_SC", "TrialBlockScore_SC", each
+        let 
+            TrialRows = [ComputedTrialBlockSubTable],  // set to the sub-table of trials within each trial block
+            Trial1 = if Table.RowCount(TrialRows) > 0 then TrialRows{0} else null, // First trial in the block
+            Trial2 = if Table.RowCount(TrialRows) > 1 then TrialRows{1} else null, // Second trial in the block
+            
+            // Extract additional fields from Trial2 (if it exists)
+            SessionNumber = if Trial2 <> null then Trial2[SessionCount] else null,
+            StudyPhase = if Trial2 <> null then Trial2[StudyPhase] else null,
+            CaregiverID = if Trial2 <> null then Trial2[CaregiverID] else null,
+            DateTimeStamp = if Trial2 <> null then Trial2[DateTimeStamp] else null,
 
-```go
-CaregiverID = "Case1",        // Parameter: Case1, Case2, Case3, Case4
-Respondent = "1_CONF",        // Parameter: 1_CONF, 2_IOA, CARE (Confederate, IOA, Caregiver)
-SessionType = "0_AC",         // Parameter: 0_AC (Actual Child), 1_SC (Simulated Child)
-EventNote = "3.0_Conf_TX_SC_TrialComplete"  // Parameter: 3.0_Conf_TX_SC_TrialComplete, 2.0_Conf_TX_BL_Start, etc.
-```
-
-- **CaregiverID**: Allows selecting specific caregivers, such as Case1, Case2, etc.
-- **Respondent**: Defines the respondent, e.g., `1_CONF` for Confederate, `CARE` for Caregiver, or `2_IOA` for IOA.
-- **SessionType**: Distinguishes between Actual Child (0_AC) and Simulated Child (1_SC) session types.
-- **EventNote**: Specifies trial events, such as `3.0_Conf_TX_SC_TrialComplete` or others based on the dataset.
-
-##### 2. **Source Data and Type Conversion:**
-The query pulls data from an Excel table named `"Table2"` and applies type transformations to ensure consistency across the dataset.
-
-```go
-Source = Excel.CurrentWorkbook(){[Name="Table2"]}[Content],
-#"Changed Type" = Table.TransformColumnTypes(Source, {
-    {"InstanceID", type text}, {"EventNote", type text}, {"DateTimeStamp", type datetimezone}, 
-    {"ResponseIDx", type text}, {"CaregiverID", type text}, {"Respondent", type text}, 
-    {"StudyPhase", type text}, {"SessionType", type text}, {"SessionCount", Int64.Type}, 
-    {"TotalSessionTrials", Int64.Type}, {"SessionBlockCount", type number}, {"ConfMonitoring1", Int64.Type}, 
-    {"ConfMonitoring2", Int64.Type}, {"ConfMonitoring3", Int64.Type}, {"ConfMonitoring4", Int64.Type}, 
-    {"ConfMonitoring5", Int64.Type}, {"ConfMonitoring6a_1", Int64.Type}, {"ConfMonitoring6a_2", Int64.Type}, 
-    {"ConfMonitoring6a_3", Int64.Type}, {"ConfChildResponse", type text}, {"ConfederateInteraction", Int64.Type}, 
-    {"ConfTrialNote", type text}, {"ConfSessionNote", type text}})
-```
-This step ensures proper data types are applied (e.g., text for IDs, integers for monitoring columns, and datetime for timestamps).
-
-##### 3. **Filtering Rows Using Parameters:**
-Rows are filtered based on the defined parameters. This ensures that only rows matching the selected `CaregiverID`, `Respondent`, `SessionType`, and `EventNote` are processed further.
-
-```go
-#"Filtered Rows" = Table.SelectRows(#"Changed Type", each 
-    ([CaregiverID] = CaregiverID) and 
-    ([Respondent] = Respondent) and 
-    ([SessionType] = SessionType) and 
-    ([EventNote] = EventNote)
-)
-```
-
-##### 4. **Selecting Relevant Columns:**
-Unnecessary columns are removed, and only the relevant ones are retained. This reduces the data load and prepares the data for the next steps.
-
-```go
-#"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows", {
-    "InstanceID", "EventNote", "DateTimeStamp", "ResponseIDx", "
-
-```m
-"CaregiverID", "Respondent", "StudyPhase", "SessionType", "SessionCount", "TotalSessionTrials", 
-    "SessionBlockCount", "ConfMonitoring1", "ConfMonitoring2", "ConfMonitoring3", "ConfMonitoring4", 
-    "ConfMonitoring5", "ConfMonitoring6a_1", "ConfMonitoring6a_2", "ConfMonitoring6a_3", 
-    "ConfChildResponse", "ConfederateInteraction", "ConfTrialNote"
-})
-```
-Only the essential columns, including **ConfMonitoring** items and other metadata, are kept for further analysis.
-
-##### 5. **Adding Custom Columns for Average Calculations:**
-Custom columns are added to compute the averages for **T1**, **T2**, and **AllConfMonitoring** based on the relevant monitoring items.
-
-- **T1 Average**:
-   ```go
-   #"Added Custom" = Table.AddColumn(#"Removed Other Columns", "T1_Average", each 
-   ([ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]) / 5)
-   ```
-   This calculates the average of **ConfMonitoring1**, **ConfMonitoring2**, **ConfMonitoring6a_1**, **ConfMonitoring6a_2**, and **ConfMonitoring6a_3**.
-
-- **T2 Average**:
-   ```go
-   #"Added Custom1" = Table.AddColumn(#"Added Custom", "T2_Average", each 
-   ([ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5]) / 3)
-   ```
-   This calculates the average of **ConfMonitoring3**, **ConfMonitoring4**, and **ConfMonitoring5**.
-
-- **AllConfMonitoring Average**:
-   ```go
-   #"Added Custom2" = Table.AddColumn(#"Added Custom1", "AllConfMonitoring_Average", each 
-   ([ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5] + 
-   [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]) / 8)
-   ```
-   This calculates the average of all eight **ConfMonitoring** columns.
-
-
-#### **Summary:**
-
-This Power Query code:
-- **Defines parameters** for flexible filtering.
-- **Filters the data** based on `CaregiverID`, `Respondent`, `SessionType`, and `EventNote`.
-- **Selects relevant columns** for analysis.
-- **Calculates averages** for T1, T2, and all ConfMonitoring items.
-
-
-### Simulated Child Confederate Observations Power Query Script
-
-
-
-#### Script Overview:
-This Power Query script processes trial data for a study, specifically focusing on simulated caregiver trials. It groups trials into blocks of two and calculates scores for each block based on a set of monitoring variables (ConfMonitoring1 to ConfMonitoring6a_3). The script then computes averages for these monitoring scores (T1, T2, and overall averages). The processed data includes information such as session number, study phase, caregiver ID, and the timestamp of the second trial in each block.
-
-
-### Key Components and Process Steps:
-
-#### 1. **Parameter Definition:**
-The script starts by defining key parameters:
-- **CaregiverID**: Select the relevant participant ID (e.g., "Case1").
-- **Respondent**: Defines whether the trial is related to the confederate, IOA, or caregiver (e.g., "1_CONF").
-- **SessionType**: Specifies whether the trial involves a simulated child or an actual child (e.g., "1_SC").
-- **EventNote**: Defines the event note for filtering the trial (e.g., "3.0_Conf_TX_SC_TrialComplete").
-
-
-#### 2. **Data Loading and Type Consistency:**
-The raw data is loaded from the Excel workbook and the data types are converted for consistency, ensuring that numeric columns and date-time columns are in the correct format. This step ensures that all monitoring variables, timestamps, and key columns such as `CaregiverID`, `SessionCount`, and `DateTimeStamp` are appropriately typed.
-
-```go
-Source = Excel.CurrentWorkbook(){[Name="Table2"]}[Content],
-#"Changed Type" = Table.TransformColumnTypes(Source, { ... })
-```
-
-
-#### 3. **Filtering Data:**
-The script filters the dataset based on the defined parameters (CaregiverID, Respondent, SessionType, and EventNote). This step ensures that only the relevant data is processed for the specific trial type.
-
-```go
-#"Filtered Rows" = Table.SelectRows(#"Changed Type", each 
-    ([CaregiverID] = CaregiverID) and 
-    ([Respondent] = Respondent) and
-    ([EventNote] = EventNote) and
-    ([SessionType] = SessionType)
-)
-```
-
-
-#### 4. **Sorting and Indexing:**
-The data is sorted by `DateTimeStamp` to ensure that the trials are in chronological order. An index column is added to number the trials sequentially.
-
-```go
-#"Sorted Rows" = Table.Sort(#"Filtered Rows",{{"DateTimeStamp", Order.Ascending}}),
-#"Added Index" = Table.AddIndexColumn(#"Sorted Rows", "Index", 1, 1, Int64.Type),
-```
-
-
-#### 5. **Grouping Trials into Blocks:**
-Trials are grouped into blocks of two based on the index, where every two trials are placed into a unique `TrialBlockGroup`. This ensures that each block of trials is treated as a unit for scoring purposes.
-
-```go
-#"Added TrialBlockGroup" = Table.AddColumn(#"Added Index", "TrialBlockGroup", each Number.IntegerDivide([Index] - 1, 2) + 1),
-```
-
-
-#### 6. **Computing Trial Block Scores:**
-For each block, the script computes scores for each `ConfMonitoring` variable. A score of `1` is assigned if both trials in the block have a value of `1` for a given monitoring variable, otherwise, the score is `0`. If a trial is missing, the score defaults to `0`.
-
-Additional information such as `SessionNumber`, `StudyPhase`, `CaregiverID`, and `DateTimeStamp` (from Trial 2) is also included in the output.
-
-```go
-#"Added Custom" = Table.AddColumn(#"GroupedTBRows", "TrialBlockScore", each
-    let 
-        TrialRows = [ComputedTrialBlockSubTable],
-        Trial1 = if Table.RowCount(TrialRows) > 0 then TrialRows{0} else null,
-        Trial2 = if Table.RowCount(TrialRows) > 1 then TrialRows{1} else null,
-
-        // Compute scores for ConfMonitoring1 - ConfMonitoring6a_3
-        TB_ConfMonitoring1 = if (Trial1[ConfMonitoring1] = 1 and Trial2[ConfMonitoring1] = 1) then 1 else 0,
-        ...
-        TB_ConfMonitoring6a_3 = if (Trial1[ConfMonitoring6a_3] = 1 and Trial2[ConfMonitoring6a_3] = 1) then 1 else 0,
-
-        // Extract additional fields from Trial2
-        SessionNumber = if Trial2 <> null then Trial2[SessionCount] else null,
-        StudyPhase = if Trial2 <> null then Trial2[StudyPhase] else null,
-        CaregiverID = if Trial2 <> null then Trial2[CaregiverID] else null,
-        DateTimeStamp = if Trial2 <> null then Trial2[DateTimeStamp] else null
-    in
+            // Compute scores for ConfMonitoring
+            TB_ConfMonitoring1 = if (Trial1[ConfMonitoring1] = 1 and Trial2[ConfMonitoring1] = 1) then 1 else 0,
+            TB_ConfMonitoring2 = if (Trial1[ConfMonitoring2] = 1 and Trial2[ConfMonitoring2] = 1) then 1 else 0,
+            TB_ConfMonitoring3 = if (Trial1[ConfMonitoring3] = 1 and Trial2[ConfMonitoring3] = 1) then 1 else 0,
+            TB_ConfMonitoring4 = if (Trial1[ConfMonitoring4] = 1 and Trial2[ConfMonitoring4] = 1) then 1 else 0,
+            TB_ConfMonitoring5 = if (Trial1[ConfMonitoring5] = 1 and Trial2[ConfMonitoring5] = 1) then 1 else 0,
+            TB_ConfMonitoring6a_1 = if (Trial1[ConfMonitoring6a_1] = 1 and Trial2[ConfMonitoring6a_1] = 1) then 1 else 0,
+            TB_ConfMonitoring6a_2 = if (Trial1[ConfMonitoring6a_2] = 1 and Trial2[ConfMonitoring6a_2] = 1) then 1 else 0,
+            TB_ConfMonitoring6a_3 = if (Trial1[ConfMonitoring6a_3] = 1 and Trial2[ConfMonitoring6a_3] = 1) then 1 else 0
+        in
         [
             SessionNumber = SessionNumber,
             StudyPhase = StudyPhase,
             CaregiverID = CaregiverID,
             DateTimeStamp = DateTimeStamp,
+            // Removed TrialBlockGroup to avoid duplicate column
             TB_ConfMonitoring1 = TB_ConfMonitoring1,
             TB_ConfMonitoring2 = TB_ConfMonitoring2,
-            ...
+            TB_ConfMonitoring3 = TB_ConfMonitoring3,
+            TB_ConfMonitoring4 = TB_ConfMonitoring4,
+            TB_ConfMonitoring5 = TB_ConfMonitoring5,
+            TB_ConfMonitoring6a_1 = TB_ConfMonitoring6a_1,
+            TB_ConfMonitoring6a_2 = TB_ConfMonitoring6a_2,
             TB_ConfMonitoring6a_3 = TB_ConfMonitoring6a_3
         ]
-),
-```
-
-
-#### 7. **Expanding and Cleaning Data:**
-The computed trial block scores and additional fields from Trial 2 are expanded into separate columns. The intermediate column (`ComputedTrialBlockSubTable`) is removed after the expansion to keep the table clean.
-
-```go
-#"Expanded TrialBlockScore" = Table.ExpandRecordColumn(#"Added Custom", "TrialBlockScore", { ... }),
-#"Removed Columns" = Table.RemoveColumns(#"Expanded TrialBlockScore", {"ComputedTrialBlockSubTable"}),
-```
-
----
-
-#### 8. **Calculating Averages:**
-The script calculates three averages:
-- **T1_Average**: The average score for `TB_ConfMonitoring1`, `TB_ConfMonitoring2`, `TB_ConfMonitoring6a_1`, `TB_ConfMonitoring6a_2`, and `TB_ConfMonitoring6a_3`.
-- **T2_Average**: The average score for `TB_ConfMonitoring3`, `TB_ConfMonitoring4`, and `TB_ConfMonitoring5`.
-- **AllConfMonitoring_Average**: The average score for all `TB_ConfMonitoring` variables.
-
-```go
-#"Added T1_Average" = Table.AddColumn(#"Removed Columns", "T1_Average", each 
-    ([TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3]) / 5
-),
-#"Added T2_Average" = Table.AddColumn(#"Added T1_Average", "T2_Average", each 
-    ([TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5]) / 3
-),
-#"Added AllConfMonitoring_Average" = Table.AddColumn(#"Added T2_Average", "AllConfMonitoring_Average", each 
-    ([TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5] + 
-    [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3]) / 8
-)
-```
-
-
-
-### **Version 2 (V2) Update: Counts Calculation**
-
-In **Version 2 (V2)** of the data transfer process, the script was updated to include additional **count-based calculations** for each monitoring group. These counts represent the sum of relevant monitoring values for each trial block group, providing a more detailed breakdown of the data. The following updates were made:
-
-#### **1. Addition of Count Columns**:
-   - **T1_Count**: A new column was added to calculate the sum of `ConfMonitoring1`, `ConfMonitoring2`, `ConfMonitoring6a_1`, `ConfMonitoring6a_2`, and `ConfMonitoring6a_3`. This column represents the **T1 Count** for each trial block group.
-   
-   - **T2_Count**: A column was added to calculate the sum of `ConfMonitoring3`, `ConfMonitoring4`, and `ConfMonitoring5`, representing the **T2 Count** for each trial block group.
-   
-   - **AllConfMonitoring_Count**: This column sums all `ConfMonitoring` variables (1 through 6a_3), providing a total **AllConfMonitoring Count** for each trial block group.
-
-#### **2. Purpose of the Count Columns**:
-   - These count columns provide insight into the total number of monitoring events across the trial blocks for each phase and session type.
-   - By including these counts, we can now track both the **average** and the **sum** of monitoring events, offering more robust data for analysis in Prism.
-
-#### **3. Data Transfer**:
-   - The updated count columns were included in the final dataset transferred to **GraphPad Prism**, following the same procedure used for transferring average values.
-   - These new columns were transferred into the appropriate Y-axis groups in Prism to enable visual comparisons and detailed analyses of monitoring counts across different phases and sessions.
-
-#### **4. Query Code Update**:
-   - The Power Query script was modified to include the count calculations for each monitoring group, ensuring that the count columns were correctly computed and added to the final dataset.
-   - The script was tested to validate the accuracy of the count calculations and to ensure that the data was correctly processed for visualization in Prism.
-
-   ```go
-
-       // Add a custom column for T1 Count (TB_ConfMonitoring1, 2, 6a_1, 6a_2, 6a_3)
-    #"Added T1_Count" = Table.AddColumn(#"Removed Columns", "T1_Count", each 
-        ([TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3])
     ),
 
-    // Add a custom column for T2 Count (TB_ConfMonitoring3, 4, 5)
-    #"Added T2_Count" = Table.AddColumn(#"Added T1_Count", "T2_Count", each 
-        ([TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5])
+    // Expand the TrialBlockScore record into separate columns for SC
+    #"Expanded TrialBlockScore_SC" = Table.ExpandRecordColumn(#"Added Custom_SC", "TrialBlockScore_SC", 
+    {"SessionNumber", "StudyPhase", "CaregiverID", "DateTimeStamp", 
+    "TB_ConfMonitoring1", "TB_ConfMonitoring2", "TB_ConfMonitoring3", "TB_ConfMonitoring4", 
+    "TB_ConfMonitoring5", "TB_ConfMonitoring6a_1", "TB_ConfMonitoring6a_2", "TB_ConfMonitoring6a_3"}),
+
+    // Add custom SC calculations for counts and averages
+    #"Added SC_T1_Count" = Table.AddColumn(#"Expanded TrialBlockScore_SC", "SC_T1_Count", each 
+        [TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3]
+    ),
+    #"Added SC_T2_Count" = Table.AddColumn(#"Added SC_T1_Count", "SC_T2_Count", each 
+        [TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5]
+    ),
+    #"Added SC_AllConfMonitoring_Count" = Table.AddColumn(#"Added SC_T2_Count", "SC_AllConfMonitoring_Count", each 
+        [SC_T1_Count] + [SC_T2_Count]
+    ),
+    #"Added SC_T1_Average" = Table.AddColumn(#"Added SC_AllConfMonitoring_Count", "SC_T1_Average", each 
+        [SC_T1_Count] / 5
+    ),
+    #"Added SC_T2_Average" = Table.AddColumn(#"Added SC_T1_Average", "SC_T2_Average", each 
+        [SC_T2_Count] / 3
+    ),
+    #"Added SC_AllConfMonitoring_Average" = Table.AddColumn(#"Added SC_T2_Average", "SC_AllConfMonitoring_Average", each 
+        [SC_AllConfMonitoring_Count] / 8
     ),
 
-    // Add a custom column for AllConfMonitoring Count (all TB_ConfMonitoring columns)
-    #"Added AllConfMonitoring_Count" = Table.AddColumn(#"Added T2_Count", "AllConfMonitoring_Count", each 
-        ([TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring3] + [TB_ConfMonitoring4] + [TB_ConfMonitoring5] + 
-        [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3])
+    // 2. Handle AC Trials
+
+    // Filter for AC sessions
+    #"Filtered Rows_AC" = Table.SelectRows(#"Changed Type", each 
+        ([CaregiverID] = CaregiverID) and 
+        ([Respondent] = Respondent) and
+        (Text.Start([EventNote], 8) = EventNote_Prefix) and  // Match the first 8 characters of EventNote
+        ([SessionType] = SessionType_AC)
     ),
 
-    ```
+    // Select necessary columns and rename SessionCount to SessionNumber
+    #"Selected Columns_AC" = Table.SelectColumns(#"Filtered Rows_AC", {"DateTimeStamp", "CaregiverID", "SessionCount", "StudyPhase", 
+        "ConfMonitoring1", "ConfMonitoring2", "ConfMonitoring3", "ConfMonitoring4", "ConfMonitoring5", 
+        "ConfMonitoring6a_1", "ConfMonitoring6a_2", "ConfMonitoring6a_3"}),
+    #"Renamed Columns_AC" = Table.RenameColumns(#"Selected Columns_AC", {{"SessionCount", "SessionNumber"}}),
 
-### Final Output:
-The final table contains:
-- **SessionNumber, StudyPhase, CaregiverID, DateTimeStamp** (from Trial 2)
-- **TB_ConfMonitoring1 - TB_ConfMonitoring6a_3**: Scores for each monitoring variable.
-- **T1_Average, T2_Average, AllConfMonitoring_Average, T1_Count, T2_Count, AllConfMonitoring_Count**: Calculated averages and counts for the monitoring variables.
+    // Add TrialBlockGroup column, set to null (or any appropriate value)
+    #"Added TrialBlockGroup_AC" = Table.AddColumn(#"Renamed Columns_AC", "TrialBlockGroup", each null),
 
+    // Add custom AC calculations for counts and averages
+    #"Added AC_T1_Count" = Table.AddColumn(#"Added TrialBlockGroup_AC", "AC_T1_Count", each 
+        [ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]
+    ),
+    #"Added AC_T2_Count" = Table.AddColumn(#"Added AC_T1_Count", "AC_T2_Count", each 
+        [ConfMonitoring3] + [ConfMonitoring4] + [ConfMonitoring5]
+    ),
+    #"Added AC_AllConfMonitoring_Count" = Table.AddColumn(#"Added AC_T2_Count", "AC_AllConfMonitoring_Count", each 
+        [AC_T1_Count] + [AC_T2_Count]
+    ),
+    #"Added AC_T1_Average" = Table.AddColumn(#"Added AC_AllConfMonitoring_Count", "AC_T1_Average", each 
+        [AC_T1_Count] / 5
+    ),
+    #"Added AC_T2_Average" = Table.AddColumn(#"Added AC_T1_Average", "AC_T2_Average", each 
+        [AC_T2_Count] / 3
+    ),
+    #"Added AC_AllConfMonitoring_Average" = Table.AddColumn(#"Added AC_T2_Average", "AC_AllConfMonitoring_Average", each 
+        [AC_AllConfMonitoring_Count] / 8
+    ),
+
+    // 3. Define the list of all required columns
+    AllColumns = {
+        "DateTimeStamp", "CaregiverID", "SessionNumber", "TrialBlockGroup", "StudyPhase",
+        "TB_ConfMonitoring1", "TB_ConfMonitoring2", "TB_ConfMonitoring3", "TB_ConfMonitoring4",
+        "TB_ConfMonitoring5", "TB_ConfMonitoring6a_1", "TB_ConfMonitoring6a_2", "TB_ConfMonitoring6a_3",
+        "SC_T1_Average", "SC_T2_Average", "SC_AllConfMonitoring_Average", "SC_T1_Count", "SC_T2_Count", "SC_AllConfMonitoring_Count",
+        "AC_T1_Average", "AC_T2_Average", "AC_AllConfMonitoring_Average", "AC_T1_Count", "AC_T2_Count", "AC_AllConfMonitoring_Count"
+    },
+
+    // 4. Adjust SC table to have all required columns
+    #"Adjusted SC Table" = Table.SelectColumns(#"Added SC_AllConfMonitoring_Average", AllColumns, MissingField.UseNull),
+
+    // 5. Adjust AC table to have all required columns
+    #"Adjusted AC Table" = Table.SelectColumns(#"Added AC_AllConfMonitoring_Average", AllColumns, MissingField.UseNull),
+
+    // 6. Combine the adjusted SC and AC tables
+    #"Combined AC_SC Results" = Table.Combine({#"Adjusted SC Table", #"Adjusted AC Table"}),
+
+    // 7. Reorder the columns as needed
+    #"Reordered Columns" = Table.ReorderColumns(#"Combined AC_SC Results", AllColumns),
+    #"Sorted Rows" = Table.Sort(#"Reordered Columns",{{"DateTimeStamp", Order.Ascending}})
+in
+    #"Sorted Rows"
+```
 
 ### Conclusion:
 This script provides a clean, processed dataset that groups trials into blocks, computes monitoring scores, and calculates averages. It ensures that each trial block is scored based on the performance of both trials in the block and includes additional relevant metadata for further analysis.
@@ -866,9 +824,7 @@ For a participant, the data can be structured as follows:
 
 ### Documentation for Data Transfer and Plotting in GraphPad Prism
 
-
-
-#### **Steps for Data Transfer and Plotting in GraphPad Prism**:
+#### **Steps for Manual Data Transfer and Plotting in GraphPad Prism**:
 
 ##### 1. **Y-Axis Group Labels in Prism**:
    - Each Y-axis group within **Prism** was named according to the study phase and session type.
@@ -926,3 +882,108 @@ For a participant, the data can be structured as follows:
 
 #### **Conclusion**:
 By carefully merging the **AC_ALL_Case1_CONF_X_V1** and **ALL_ALL_Case1_CONF_TrialBlockScoring_v1** tables into a combined set of 56 entries, and transferring each data series one at a time (starting with `AllConfMonitoring_Average`, followed by `T1_Average` and `T2_Average`), and assigning them to their corresponding Y-axis groups in Prism, the integrity and alignment of the data were maintained. This process ensured that the data was structured and ready for accurate visualization in GraphPad Prism.
+
+### Steps for Python Script to Automate Data Transfer to Prism `TechPT - 2024.09.19 - Script - Translate Excel to Prism`
+
+
+#### 1. **Introduction**
+This section outlines the steps taken to dynamically process a CSV file containing session or trial data. The goal of the script is to dynamically select the last column in the dataset, generate new columns based on session and phase identifiers, for visualization in GraphPad Prism.
+
+### 2. **Loading and Initial Setup**
+- **Step 1**: Prepare CSV file with essential columns. The `TechPT - 2024.09.18 - Query - ALL_ALL_Case1_CONF_TrialBlockScoring_v1` query was used to generate the CSV file.
+- **Step 2**: The script prompts the user to select a CSV file using a file dialog.
+- **Step 3**: The script reads the selected CSV file into a pandas DataFrame (`df`), ensuring that essential columns are present. These include:
+  - `DateTimeStamp`
+  - `CaregiverID`
+  - `SessionNumber`
+  - `TrialBlockGroup`
+  - `StudyPhase`
+  - `SessionType`
+  - Last column with the data to be visualized in Prism.
+
+- **Step 3**: The last column of the CSV is identified dynamically, ensuring flexibility regardless of the column header names in the input file.
+
+```python
+last_column = df.columns[-1]
+```
+
+#### 3. **Processing Session Data**
+#### **Step 1: Creating a Phase and Session Identifier**
+- A new identifier, `Phase_Part`, is created by combining `StudyPhase` and `SessionType` for each row. This helps in organizing data by the session phase and type.
+
+```python
+def get_phase_part(row):
+    study_phase = row['StudyPhase']
+    session_type = row['SessionType']
+    if study_phase == '5_RTB':
+        phase_part = 'RTB'
+    else:
+        phase_part = study_phase.split('_')[-1]
+    type_part = session_type.split('_')[-1]
+    return f"{phase_part}_{type_part}"
+
+df['Phase_Part'] = df.apply(get_phase_part, axis=1)
+```
+
+##### **Step 2: Assigning Row Index**
+- Each row is indexed starting from 1 for easier tracking and reference.
+
+```python
+df['Row_Index'] = df.index + 1
+```
+
+#### 4. **Main Loop: Generating Columns for Each Session**
+- The script iterates through the rows of the DataFrame, dynamically creating new columns based on `Phase_Part` and `SessionNumber`. The values from the dynamically identified last column are placed into these new columns. 
+
+- **Loop Initialization**:
+  - Each combination of `Phase_Part` and `SessionNumber` starts a new column.
+  - Subsequent rows that match the same `Phase_Part` and `SessionNumber` are placed into the same column.
+
+```python
+while idx < len(df):
+    row = df.iloc[idx]
+    phase_part1 = row['Phase_Part']
+    session_number1 = row['SessionNumber']
+    last_column_value1 = row[last_column]  # Dynamically fetched last column
+
+    column_count += 1
+    column_name = f"{phase_part1}_{session_number1}_{column_count}"
+
+    if column_name not in output_df.columns:
+        output_df[column_name] = pd.NA
+
+    output_df.at[idx, column_name] = last_column_value1
+
+    # Nested loop for same phase and session
+    idx += 1
+    while idx < len(df):
+        row2 = df.iloc[idx]
+        phase_part2 = row2['Phase_Part']
+        session_number2 = row2['SessionNumber']
+        last_column_value2 = row2[last_column]
+
+        if phase_part2 == phase_part1 and session_number2 == session_number1:
+            output_df.at[idx, column_name] = last_column_value2
+            idx += 1
+        else:
+            break
+```
+
+#### 5. **Output Formatting**
+- Once the loop completes, the script organizes the new columns into a desired order and prompts the user to save the output as a CSV file.
+
+```python
+# Reorder columns
+desired_columns_order = ['Trial Block Count'] + columns_order
+output_df = output_df[desired_columns_order]
+
+# Prompt user to save CSV
+output_file = filedialog.asksaveasfilename(defaultextension=".csv",
+                                           filetypes=[("CSV Files", "*.csv")],
+                                           title="Save CSV as")
+if output_file:
+    output_df.to_csv(output_file, index=False)
+    print(f"Data successfully exported to {output_file}")
+```
+
+
