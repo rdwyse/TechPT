@@ -1,9 +1,5 @@
 TechPT Data Management Documentation
-2024.09.17
-
-# Table of Contents
-
-Here's an updated **Table of Contents** reflecting the sections of the **TechPT Data Management Documentation** you provided, including the detailed steps, actions, and processes documented for the project:
+2024.09.19
 
 # Table of Contents
 
