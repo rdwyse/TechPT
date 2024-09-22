@@ -236,7 +236,7 @@ This documentation ensures that the data processes are transparent, replicable, 
 
 - Observation:
   - Confederate guide note InstanceID `0kaipj5v5x` indicated, "Caregiver guide was interupted and reset"
-  - No erranious was found within the data set. 
+  - No erranious entery was found within the data set. 
   
 
 ### Adjusting Records for Confederate Compliance Based on Trial Notes
@@ -297,11 +297,11 @@ This documentation ensures that the data processes are transparent, replicable, 
 - Reason:
   - Although the trial note mentioned sending the wrong guide, no discrepancies or issues were found in the logs or research notes. As a result, no changes were made.
 
-### Correcting Study Phase and CaregiverID Based on Research and Session Notes
+### Correcting Study Phase and CaregiverID Based on Research and Session Notes **See error adjustment below**
 
 - Action:
   - Identified instanceID `ihaltfgu1j`, where the session note stated: "Had the phase set to baseline in my guide, should be T2, check caregiver too. I assumed Mastery."
-  - Reviewed research notes, which indicated: "Used the wrong CGID for XXX [Case 3] at 9 AM, used XXX [Case2]."
+  - Reviewed research notes, which indicated: "Used the wrong CGID for XXX [Case 3] at 9 AM, used XXX [Case2]." **See error adjustment below**
   - Identified session start at instanceID `aayf1gemmr` and session stop at instanceID `hfvedav993`.
   - Updated **StudyPhase** from `0_BL` to `2_t2` for **Cells G430:G464** (17 entries).
   - Updated **CaregiverID** from `Case2` to `Case3` for **Cells E430:E465** (36 entries).
@@ -315,6 +315,15 @@ This documentation ensures that the data processes are transparent, replicable, 
   - This correction will need to be noted in the methods section and graphically represented.
   - Mastery criteria were actually met a few trial blocks before the session was concluded.
   - The directions delivered by the caregiver would have been different if the correct phase was set. Although, there is overlap in the directions delivered by both caregivers.
+
+  #### 2024.09.16 Error Addendum
+
+  While tabulating date for Case2, it was identified that there were no 2_t2 trials for Case2. Upon review of the previous edit an error was made while reviewing the research notes. The date of the research note was for the 2024.08.14 session, not the current 2024.08.09 Session. The note referenced 9 AM and the current session was at 9 AM as well in combination of the reference to "check caregiver" the note was misinterpreted.
+
+  - Action: 
+    - Sort by timedatestamp and searched for `hfvedav993`
+    - Identified session start at instanceID `aayf1gemmr` and session stop at instanceID `hfvedav993`.
+    - REVERTED **CaregiverID** from `Case3` to `Case2` for **Cells E430:E465** (36 entries).
 
 ### Mastery Criteria Review Based on 8029hmvgjh Note
 - Action:  
@@ -348,6 +357,49 @@ This documentation ensures that the data processes are transparent, replicable, 
 - Action:  
   - Documented this oversight for future reference without attempting to correct javascript for future studies.
 
+## Date: 2024.09.20
+
+  ### Readjusting CaregiverID for Case 2
+  See  `#### 2024.09.16 Error Addendum`
+
+  ### Adjusting Records for Caregiver Entry Due to Incorrect Phase Selection
+
+- **Action**:  
+  - Custom sorted the data by `DateTimeStamp` in ascending order.
+  - Identified the instance with `InstanceID: 0mor6ievy3`, which was the last trial of the simulated child session.
+  - Duplicated the row with `InstanceID: 0mor6ievy3` and assigned the duplicated row `InstanceID: 0mor6ievy3-duplicate`.
+  - Added the following trial note:  
+    `**Post-Hoc duplication of trial see # Data Cleanup Process Documentation ## Date: 2024.09.20.`
+
+- **Reason**:  
+  - The wrong phase selection (`0_BL` instead of `2_T2`) caused the caregiver to deliver incorrect directions. While mastery was determined in-session by the experimenter, it was not reflected in the programmatic calculations, leading to an extra 9 trials being completed.
+  - These extra trials resulted in an odd number of trials, which would cause issues in the trial block parsing. By duplicating the last trial, we ensured an even number of trials without impacting the score, as duplicating or keeping a single trial results in the same trial block score.
+
+- **Outcome**:  
+  - The duplicated trial allowed the data to be properly parsed with an even number of trials, ensuring accurate trial block formation without discarding any trials.
+  - This will need to be noted in the methods section and graphically represented.
+
+  ### Adjusting CaregiverID for Incorrect Case Assignment
+
+- **Action**:  
+  - Sorted data by `DateTimeStamp` to identify the relevant session start and end points.
+  - Identified InstanceID: `ycmd3jnuj5` as the confederate guide survey start and InstanceID: `embw4dvrws` as the session end.
+  - Sorted the data by `Respondent`, then by `DateTimeStamp`, to ensure the correct sequence of events was captured.
+  - Replaced 8 cells from `Case3` to `Case2` in `E541:E548`, between InstanceID: `ycmd3jnuj5` to `to8bfqsufjxg`.
+
+- **Reason**:  
+  - While tabulating Case 2 data, it was identified that the `Simulated Child 1_T1` data was missing. Upon review of the Master Table, it was discovered that Case 3’s `CaregiverID` had been incorrectly assigned during the confederate guide session for Case 2.
+  - This error occurred during the session immediately following the identification of the mastery criteria issue in Case 3 and its subsequent adjustment, which likely contributed to the confusion in the confederate guide.
+  - The Caregiver Guide for Session 2 correctly utilized `Case 2` during the session, ensuring that only the confederate guide had this discrepancy.
+  - Additionally, the `0_AC` trials following `1_T1` and `1_SC` correctly used the `CaregiverID` for `Case 2`.
+
+- **Outcome**:  
+  - Corrected the CaregiverID for the confederate guide during Case 2 sessions, ensuring that all relevant data is properly associated with the correct case.
+  - This adjustment ensures accurate data tabulation for Case 2 and prevents any further discrepancies between the Caregiver and Confederate guides.
+  - No impact on direction delivery due to the correct CaregiverID being used in the Caregiver Guide.
+
+
+
 
 # Data Preparation
 
@@ -359,7 +411,6 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
    - **Data Import**: The master table is loaded into Excel and processed using **Power Query**.
    - **Power Query for Filtering and Transformation**: Power Query is used to filter and transform the dataset (e.g., extracting data for specific cases, respondents, or sessions). Filters are applied to select relevant columns and rows, such as extracting all **Actual Child (AC)** trials for **Case 1** with **Confederate (CONF)** as the respondent.
    - **Automated Updates**: The query results are loaded back into Excel. Any changes made to the master table are reflected in the query results when refreshed.
-   - **Excel Functions for Real-Time Calculations**: Supplemental calculations such as averages, compliance rates, or specific lookups are handled within Excel using functions like `FILTER`, `XLOOKUP`, and `AVERAGE`.
 
 ### 2. **Exporting Data to GraphPad Prism**:
    - Once the data is cleaned and organized in Excel, it is exported as a **CSV file** for use in GraphPad Prism.
@@ -377,7 +428,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
 - **Exporting** data from Excel to Prism as a **CSV** ensures smooth transitions between data preparation and visualization.
 
 
-## Naming Convention:
+## Table Naming Convention:
 
 ```plaintext
 <SessionType>_<StudyPhase>_<CaregiverID>_<Respondent>_<Additional Details>_<Version>
@@ -438,6 +489,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
 ### 1. **Introduction**
    - This sections outlines the steps to clean, filter, and organize  Monitoring data for analysis and visualization in GraphPad Prism. 
    - The goal is to process data from both Simulated Child (SC) and Actual Child (AC) sessions, calculating trial block scores, averages, and counts for each session.
+   - The Power Query language service for VS Code Available in the Visual Studio Code Marketplace. Provides a language service for the Power Query / M formula language in Visual Studio Code. This extensions provides syntax highlighting, auto-suggestions, and other editing features for M code files. It also provides syntax debugging and error highlighting features making the development of Power Query code easier.
 
 ### 2. **Loading the Master Table**
    - **Step 1**: Import the master table into Excel from a CSV file.
