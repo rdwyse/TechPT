@@ -17,7 +17,7 @@ if csv_file:
 
         # Ensure required columns are present (without specifying the 'ALL_last_column_value' since it will be dynamic)
         required_columns = ['DateTimeStamp', 'CaregiverID', 'SessionNumber',
-                            'TrialBlockGroup', 'StudyPhase', 'SessionType']
+                            'TrialBlockGroup', 'StudyPhase', 'All_SessionType']
         if not all(col in df.columns for col in required_columns):
             print("Input CSV file is missing required columns.")
             exit()
@@ -28,7 +28,7 @@ if csv_file:
         # Create 'Phase_Part' by combining 'StudyPhase' and 'SessionType'
         def get_phase_part(row):
             study_phase = row['StudyPhase']
-            session_type = row['SessionType']
+            session_type = row['All_SessionType']
             if study_phase == '5_RTB':
                 phase_part = 'RTB'
             else:
