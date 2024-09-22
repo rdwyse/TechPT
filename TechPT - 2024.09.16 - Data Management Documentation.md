@@ -1,5 +1,5 @@
 TechPT Data Management Documentation
-2024.09.19
+2024.09.22
 
 # Table of Contents
 
@@ -232,7 +232,7 @@ This documentation ensures that the data processes are transparent, replicable, 
 
 - Observation:
   - Confederate guide note InstanceID `0kaipj5v5x` indicated, "Caregiver guide was interupted and reset"
-  - No erranious entery was found within the data set. 
+  - No erranious entry was found within the data set. 
   
 
 ### Adjusting Records for Confederate Compliance Based on Trial Notes
@@ -500,7 +500,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
    - **Step 2**: Define key parameters in Power Query: ALL_ALL_Case1_CONF_TrialBlockScoring_v1
      - Parameters for filtering the data dynamically are set at the start of the script. These include `CaregiverID`, `Respondent`, `SessionType`, and `EventNote`.
    
-   ```go
+   ```powerquery
    let
        CaregiverID = "Case1",  // Parameter: Case1, Case2, Case3
        Respondent = "1_CONF",  // Parameter: 1_CONF, 2_IOA, CARE
@@ -515,7 +515,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
    - **Step 1**: Filter for SC sessions based on the parameters.
      - The script filters rows that match the selected `CaregiverID`, `Respondent`, `EventNote_Prefix`, and **Simulated Child** sessions.
 
-     ```go
+     ```powerquery
      #"Filtered Rows_SC" = Table.SelectRows(#"Changed Type", each 
          ([CaregiverID] = CaregiverID) and 
          ([Respondent] = Respondent) and
@@ -524,18 +524,18 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
      )
      ```
    - **Step 2**: Sort SC sessions chronologically by `DateTimeStamp`.
-     ```go
+     ```powerquery
      #"Sorted Rows_SC" = Table.Sort(#"Filtered Rows_SC", {{"DateTimeStamp", Order.Ascending}})
      ```
 
    #### **Creating Trial Blocks for SC Sessions**
    - **Step 3**: Add an index column to uniquely identify each trial.
-     ```go
+     ```powerquery
      #"Added Index_SC" = Table.AddIndexColumn(#"Sorted Rows_SC", "Index", 1, 1, Int64.Type)
      ```
    - **Step 4**: Create `TrialBlockGroup` by grouping trials into pairs.
      - Each pair of trials is treated as a block, and trial block scores will be computed for each pair.
-     ```go
+     ```powerquery
      #"Added TrialBlockGroup_SC" = Table.AddColumn(#"Added Index_SC", "TrialBlockGroup", each Number.IntegerDivide([Index] - 1, 2) + 1)
      ```
 
@@ -543,7 +543,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
    - **Step 5**: Calculate the trial block scores for SC sessions based on Confederate Monitoring variables (**ConfMonitoring1-6a_3**).
      - For each trial block, a score of `1` is assigned if both trials have a value of `1` for a given variable, otherwise, the score is `0`.
 
-     ```go
+     ```powerquery
      #"Added Custom_SC" = Table.AddColumn(#"GroupedTBRows_SC", "TrialBlockScore_SC", each
          let
              TrialRows = [ComputedTrialBlockSubTable],
@@ -571,7 +571,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
      - **T1** includes variables 1, 2, and 6a_1-6a_3.
      - **T2** includes variables 3, 4, and 5.
 
-     ```go
+     ```powerquery
      #"Added SC_T1_Count" = Table.AddColumn(#"Expanded TrialBlockScore_SC", "SC_T1_Count", each 
          [TB_ConfMonitoring1] + [TB_ConfMonitoring2] + [TB_ConfMonitoring6a_1] + [TB_ConfMonitoring6a_2] + [TB_ConfMonitoring6a_3]
      ),
@@ -587,7 +587,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
 
 #### **Filtering and Processing AC Sessions**
    - **Step 1**: Filter for AC sessions based on the selected parameters.
-     ```go
+     ```powerquery
      #"Filtered Rows_AC" = Table.SelectRows(#"Changed Type", each 
          ([CaregiverID] = CaregiverID) and
          ([Respondent] = Respondent) and
@@ -596,7 +596,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
      )
      ```
    - **Step 2**: Adjust the columns for AC trials, ensuring they align with SC structure.
-     ```go
+     ```powerquery
      #"Selected Columns_AC" = Table.SelectColumns(#"Filtered Rows_AC", {"DateTimeStamp", "CaregiverID", "SessionCount", "StudyPhase", 
          "ConfMonitoring1", "ConfMonitoring2", "ConfMonitoring3", "ConfMonitoring4", "ConfMonitoring5", 
          "ConfMonitoring6a_1", "ConfMonitoring6a_2", "ConfMonitoring6a_3"}),
@@ -605,7 +605,7 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
 
 #### **Calculating Averages and Counts for AC**
    - **Step 3**: Compute averages and counts for Confederate Monitoring variables for the AC trials, similar to the SC calculations.
-     ```go
+     ```powerquery
      #"Added AC_T1_Count" = Table.AddColumn(#"Added TrialBlockGroup_AC", "AC_T1_Count", each 
          [ConfMonitoring1] + [ConfMonitoring2] + [ConfMonitoring6a_1] + [ConfMonitoring6a_2] + [ConfMonitoring6a_3]
      ),
@@ -621,20 +621,20 @@ This workflow combines the strengths of **Excel** and **Power Query** for data m
 
    - **Step 1**: Ensure the SC and AC tables have the same columns and structure.
      - If a column is missing in either table, it's added with `null` values.
-     ```go
+     ```powerquery
      #"Adjusted SC Table" = Table.SelectColumns(#"Added SC_AllConfMonitoring_Average", AllColumns, MissingField.UseNull),
      #"Adjusted AC Table" = Table.SelectColumns(#"Added AC_AllConfMonitoring_Average", AllColumns, MissingField.UseNull)
      ```
 
    - **Step 2**: Combine the SC and AC tables into a single dataset.
-     ```go
+     ```powerquery
      #"Combined AC_SC Results" = Table.Combine({#"Adjusted SC Table",
 
 ### `ALL_ALL_Case1_CONF_TrialBlockScoring_v1` Power Query Code:
 
 
 
-```go
+```powerquery
 let
     // Define parameters (Case1, Case2, Case3)
     CaregiverID = "Case1",  // Select the relevant participant ID
@@ -811,8 +811,59 @@ in
     #"Sorted Rows"
 ```
 
+###  Key Differences and Explanation of `ALL_ALL_ALL_CONF_X_V1`
+
+The **`ALL_ALL_ALL_CONF_X_V1`** query extends upon `ALL_ALL_CASE1_Conf_TrialBlockScoring_v1` to handle **multiple caregivers dynamically**, allowing for greater scalability and flexibility. This is achieved through the use of a helper function and dynamic application across all caregivers in the dataset.
+
+#### Key Improvement #5: Dynamic Caregiver Processing
+
+In **`ALL_ALL_ALL_CONF_X_V1`**, a helper function `ProcessCaregiver` is used to process each caregiver’s data for both **Simulated Child (SC)** and **Actual Child (AC)** sessions. This avoids the need to manually write the same logic for each caregiver.
+
+##### Explanation of Key Logic
+
+1. **Helper Function to Process Each Caregiver:**
+
+   The `ProcessCaregiver` function accepts a **`CaregiverID`** as a parameter and filters the dataset for that caregiver’s SC and AC sessions. It processes the filtered data by calculating trial block scores, averages, and counts for each session. This modular function can be applied to any caregiver, ensuring that the logic is reusable and does not need to be rewritten for each individual case.
+
+   ```powerquery
+   ProcessCaregiver = (CaregiverID as text) => 
+   let
+       // Filter and process SC sessions
+       // Filter and process AC sessions
+       // Combine SC and AC results for this caregiver
+   in
+       Combined_SC_AC
+   ```
+
+2. **Retrieving Unique Caregivers and Applying the Function:**
+
+   After defining the `ProcessCaregiver` function, the query automatically **retrieves all unique caregivers** from the dataset using `List.Distinct`. This ensures that every caregiver present in the data is processed. 
+
+   The **`List.Transform`** function is then used to apply the `ProcessCaregiver` function to each unique `CaregiverID`. This means the processing logic is applied dynamically to all caregivers in the dataset, regardless of how many caregivers there are.
+
+   ```powerquery
+   CaregiverIDs = List.Distinct(#"Changed Type"[CaregiverID]), // Get unique caregivers
+   AllResults = List.Transform(CaregiverIDs, each ProcessCaregiver(_)), // Apply the helper function to each caregiver
+   ```
+
+3. **Combining Results for All Caregivers:**
+
+   Once the `ProcessCaregiver` function has been applied to all caregivers, the results are combined into a single table using `Table.Combine`. This final step merges the processed data for all caregivers into a unified dataset, making it ready for further analysis.
+
+   ```powerquery
+   FinalResult = Table.Combine(AllResults) // Combine results for all caregivers into one table
+   ```
+
+### Summary
+
+The key improvement in **`ALL_ALL_ALL_CONF_X_V1`** is its ability to dynamically process data for multiple caregivers. By defining a helper function (`ProcessCaregiver`) and applying it to each unique caregiver, the query becomes scalable and reusable. This approach significantly reduces the manual effort needed to process each caregiver's data, ensuring that the logic is applied consistently and efficiently across the entire dataset.
+
 ### Conclusion:
 This script provides a clean, processed dataset that groups trials into blocks, computes monitoring scores, and calculates averages. It ensures that each trial block is scored based on the performance of both trials in the block and includes additional relevant metadata for further analysis.
+
+
+
+
 
 ## **Prism Design Considerations**
 

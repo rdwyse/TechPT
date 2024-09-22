@@ -177,7 +177,7 @@ let
         },
 
     // Reorder the columns as needed
-    #"Reordered Columns" = Table.ReorderColumns(FinalResult,),
+    #"Reordered Columns" = Table.ReorderColumns(FinalResult, AllColumnsWithoutALL),
 
     // Add combined ALL columns by adding columns individually
     #"Added ALL_T1_Count" = Table.AddColumn(#"Reordered Columns", "ALL_T1_Count", each 
@@ -203,10 +203,16 @@ let
     },
 
     // Reorder columns to include new ALL columns
-    #"Reordered Columns Final" = Table.ReorderColumns(#"Added ALL_SessionType"),
+    #"Reordered Columns Final" = Table.ReorderColumns(#"Added ALL_SessionType", AllColumnsFinal),
 
     // Sort rows by DateTimeStamp in ascending order
-    #"Sorted AllColumnsFinal" = Table.Sort(#"Reordered Columns Final", {{"DateTimeStamp", Order.Ascending}})
+    #"Sorted AllColumnsFinal" = Table.Sort(#"Reordered Columns Final", {{"DateTimeStamp", Order.Ascending}}),
+
+    //select only interested columns
+
+    #"Removed Other Columns" = Table.SelectColumns(#"Sorted AllColumnsFinal",{"DateTimeStamp", "CaregiverID", "SessionNumber", "TrialBlockGroup", "StudyPhase", "ALL_T1_Average", "ALL_T2_Average", "ALL_AllConfMonitoring_Average", "ALL_T1_Count", "ALL_T2_Count", "ALL_AllConfMonitoring_Count", "ALL_SessionType"}),
+    #"Reordered Columns1" = Table.ReorderColumns(#"Removed Other Columns",{"DateTimeStamp", "CaregiverID", "ALL_SessionType", "SessionNumber", "TrialBlockGroup", "StudyPhase", "ALL_T1_Average", "ALL_T2_Average", "ALL_AllConfMonitoring_Average", "ALL_T1_Count", "ALL_T2_Count", "ALL_AllConfMonitoring_Count"})
+
 
 in
-    #"Sorted AllColumnsFinal"
+    #"Reordered Columns1"
