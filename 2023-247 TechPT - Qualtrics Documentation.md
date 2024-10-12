@@ -90,7 +90,7 @@
 
 ## Introduction
 
-This documentation delineates the design and variable framework employed within the Qualtrics survey for the technology-assisted caregiver training program (TechPT). The survey is crafted to support caregivers of children with behavioral challenges, utilizing a multi-tiered training approach. The primary research objective is to evaluate the impact of the training program on caregiver performance.
+This documentation delineates the design and variable framework employed within the Qualtrics Survey platform for the technology-assisted caregiver training program (TechPT). The survey is crafted to support caregivers of children with behavioral challenges, utilizing a multi-tiered training approach. The primary research objective is to evaluate the impact of the training program on caregiver performance.
 
 The study design incorporates a combination of multiple baseline across behaviors and a replicated AB design, facilitating within and between subject analysis. The survey framework, including block naming conventions and logic sequences, is tailored to seamlessly integrate with the study's multi-phase approach, centrally capturing data from both caregivers and confederates across various study phases and session types.
 
@@ -106,11 +106,11 @@ Concurrently, confederates utilize a separate digital guide, also hosted on Qual
 
 To enhance the flexibility and maintainability of the TechPT Qualtrics survey, a JavaScript library will be hosted. This library contains functions such as 'generateRandomString(length)' and objects such as the `caregiverDirectionPool`, which are used throughout the survey. By hosting a library, the code can me mananaged and updated without having to modify the javascript associated with individual questions or blocks within Qualtrics.
 
-Qualtrics provides a built in javascript editor which is directly associated withi individual questions and blocks. Explanation of this functionality is described here: https://www.qualtrics.com/support/survey-platform/survey-module/question-options/add-javascript/ For the TechPT Survey, functions will be initiated by individual question blocks using the Qualtrics UI JavaScript Editor and called from the hosted javascript library.  The javascript within these blocks is reloaded each time an question is loaded. 
+Qualtrics provides a built in javascript editor which is directly associated withi individual questions and blocks. Explanation of this functionality is described here: https://www.qualtrics.com/support/survey-platform/survey-module/question-options/add-javascript/ For the TechPT Survey, functions will be initiated by individual question blocks using the Qualtrics UI JavaScript Editor and called from the hosted javascript library.  The javascript within these blocks is reloaded each time a question is loaded. 
 
 The Qualtrics 'add-javascript' documentation provides a reference for expanding the javascript functionality: "If you want to import JavaScript libraries, you can include a reference to them in the survey header within <'script> tags. Remember that even once you have referenced the library in your header, you must apply Javascript directly to applicable questions for that code to be pulled into the survey."
 
-The Qualtrics does not provide JS jQuery Source but does offer a series of API references as a means to identify a number of the Qualtrics.SurveyEngine functions and use cases : https://api.qualtrics.com/0f8fac59d1995-api-reference
+The Qualtrics does not provide JS jQuery Source but does offer a series of API references as a means to identify the Qualtrics.SurveyEngine functions and use cases : https://api.qualtrics.com/0f8fac59d1995-api-reference
 
 ### Implementation
 
@@ -170,7 +170,7 @@ For incorporating multiple embedded variables, concatenate them using the "&" sy
 Example link:
 
 ```
-https://cmich.co1.qualtrics.com/jfe/form/SV_cvj0yTQ6ooAdskS?CaregiverID=YOUR_VALUE&Respondent=YOUR_VALUE&StudyPhase=YOUR_VALUE&SessionType=YOUR_VALUE
+https://cmich.co1.qualtrics.com/jfe/form/SV_PRIVATE?CaregiverID=YOUR_VALUE&Respondent=YOUR_VALUE&StudyPhase=YOUR_VALUE&SessionType=YOUR_VALUE
 ```
 
 For instance, for a confederate session guide (`1_CONF`) for caregiver ID `CG123`,during the baseline phase (`0_BL`), and the session type being actual child (`0_AC`), the resultant link appears as:
@@ -1927,6 +1927,7 @@ Training trial directon recording.
 Message prompt for confederate end of trial says SC regardless of sessiontype.
 Display of feedback and verbal prompting is not recorded.
 Loop and merge 100 loops, likely creating an issue with the expansive rows in the qualtrics data table.
+2024.09.26 - Name changes between qualtrics and data processing. CaregiverID gets changed due to privacy. Sometimes CaseAssignment is used, sometimes CaregiverID is replaced with the caseassignment value. This inconsistency can cause issues with data processing and analysis. A similar issue occurs with SessionCount and the data anayliss of session number. It slipped into the code at some point when developing queries and trying to figure out how to exctract trial block data based on session count and phase. Also, some of the computed values ALL_ get mixed in. The master table also had a ':' in the header, which caused issues with the data processing. The header was changed to remove the ':' and the data processing was updated to reflect this change. This is the only documentation. 
 
 
 ## Depreciated Features
